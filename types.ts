@@ -17,7 +17,7 @@ export enum ConfigType {
 	buildingbox = 12,
 	//laccess = 13,
 	bytearray = 14,
-	booleanarray = 15,
+	booleanarray = 16,
 	unit = 17,
 };
 export type ConfigValue = null | number | bigint | string | [type: number, id: number] | number[] | Point2 | Point2[] | boolean;

@@ -61,12 +61,27 @@ class SmartBuffer extends _SmartBuffer {
 class Tile {
 	x: number;
 	y: number;
+	static logicBlocks: string[] = ["micro-processor", "logic-processor", "hyper-processor"];
 	constructor(public name: string, position: number, public config: Config, public rotation: number) {
 		this.x = Point2.x(position);
 		this.y = Point2.y(position);
 	}
 	toString() {
 		return `${this.name}`;
+	}
+	isProcessor(){
+		return Tile.logicBlocks.includes(this.name);
+	}
+	decompressLogicCode(){
+		if(!this.isProcessor) return null;
+		let data = new SmartBuffer({
+			buff: zlib.deflateSync(Uint8Array.from(this.config.value as number[]))
+		});
+		let version = data.readInt16BE();
+		console.log(Array.from(data.toBuffer()).map(el => ('00' + el.toString(16).toUpperCase()).slice(-2)).join(" "));
+		console.log(version);
+		
+
 	}
 }
 /**Partial port of arc.math.geom.Point2 */
@@ -150,7 +165,7 @@ class Schematic {
 		let numTiles = data.readInt32BE();
 		let tiles: ReturnType<typeof Schematic.unsortTiles> = [];
 		console.log(`${numTiles} tiles.`);
-		if (width > 128 || height > 128) throw new Error("Schematic contains too many tiles.");
+		if (numTiles > width * height) throw new Error("Schematic contains too many tiles.");
 		for (let i = 0; i < numTiles; i++) {
 			let id = data.readInt8();
 			let block = blocks.get(id)!;
@@ -267,7 +282,7 @@ class TypeIO {
 				return new Config(ConfigType.point, new Point2(buf.readInt32BE(), buf.readInt32BE()));
 			case 8:
 				let points:Point2[] = [];
-				for(let i = 0; i < buf.readInt16BE(); i ++){
+				for(let i = 0; i < buf.readInt8(); i ++){
 					points.push(Point2.from(buf.readInt32BE()));
 				}
 				return new Config(ConfigType.pointarray, points);
@@ -278,6 +293,14 @@ class TypeIO {
 			case 12:
 				//Should technically be a BuildingBox, but thats equivalent to a Point2 for this program.
 				return new Config(ConfigType.buildingbox, Point2.from(buf.readInt32BE()));
+			case 14:
+				let numBytes = buf.readInt32BE();
+				console.log(`Object has ${numBytes} bytes`);
+				let bytes:number[] = [];
+				for(let i = 0; i < numBytes; i ++){
+					bytes.push(buf.readUInt8());
+				}
+				return new Config(ConfigType.bytearray, bytes);
 			default:
 				throw new Error(`Unknown or not implemented object type (${type}) for a tile.`);
 		}
@@ -325,6 +348,12 @@ class TypeIO {
 					buf.writeInt32BE(point.pack());
 				}
 				break;
+			case ConfigType.bytearray:
+				buf.writeInt32BE((object.value as number[]).length);
+				for (let byte of (object.value as number[])) {
+					buf.writeUInt8(byte);
+				}
+				break;
 			//TODO implement the rest of them.
 			default:
 				throw new Error(`Unknown or not implemented object type (${object.type}) for a tile.`);
@@ -350,12 +379,8 @@ function main(argv: string[]) {
 	let schem = Schematic.from(fs.readFileSync(mainArgs[0]));
 	console.log(`Loaded schematic ${mainArgs[0]}`);
 	schem.displayTiles();
-	schem.setTileAt(1, 1, new Tile("phase-wall", Point2.pack(1, 1), Config.null, 0));
-	console.log(`Modified schematic ${mainArgs[0]}`);
-	schem.displayTiles();
+	console.log("Config of tile at 0, 0:", schem.getTileAt(0, 0)?.decompressLogicCode());
 	let outputPath = path.join(mainArgs[0], "..", "modified-" + mainArgs[0].split(path.sep).at(-1));
-	console.log(`Writing to ${outputPath}`);
-	fs.writeFileSync(outputPath, schem.write().toBuffer());
 }
 
 

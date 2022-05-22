@@ -16,7 +16,7 @@ export var ConfigType;
     ConfigType[ConfigType["buildingbox"] = 12] = "buildingbox";
     //laccess = 13,
     ConfigType[ConfigType["bytearray"] = 14] = "bytearray";
-    ConfigType[ConfigType["booleanarray"] = 15] = "booleanarray";
+    ConfigType[ConfigType["booleanarray"] = 16] = "booleanarray";
     ConfigType[ConfigType["unit"] = 17] = "unit";
 })(ConfigType || (ConfigType = {}));
 ;
