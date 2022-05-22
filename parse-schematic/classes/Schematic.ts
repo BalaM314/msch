@@ -88,7 +88,11 @@ export class Schematic {
 		compressableData.writeUInt16BE(this.height);
 
 		//TODO actually write the tags instead of just a null byte
-		compressableData.writeUInt8(0);
+		compressableData.writeUInt8(Object.entries(this.tags).length);
+		for(let [key, value] of Object.entries(this.tags)){
+			compressableData.writeUTF8(key);
+			compressableData.writeUTF8(value);
+		}
 
 		let unsortedTiles = Schematic.unsortTiles(this.tiles);
 		let blocks = Schematic.getBlockMap(unsortedTiles);

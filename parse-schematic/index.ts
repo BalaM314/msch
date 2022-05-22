@@ -26,6 +26,7 @@ function main(argv: string[]) {
 	schem.getTileAt(0, 0)!.config.value = Tile.compressLogicCode(code.map(line => line.replaceAll("hello world", "hi mom")));
 	let outputPath = path.join(mainArgs[0], "..", "modified-" + mainArgs[0].split(path.sep).at(-1));
 	schem.tags["description"] = "Modified";
+	schem.tags["name"] = schem.tags["name"] + "-modified";
 	fs.writeFileSync(outputPath, schem.write().toBuffer());
 	console.log(`Wrote modified file to ${outputPath}`);
 }
