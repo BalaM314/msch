@@ -1,8 +1,8 @@
 import { SmartBuffer } from "../ported/SmartBuffer.js";
 import { Tile } from "../classes/Tile.js";
-import { TypeIO } from "../ported/TypeIO";
-import * as zlib from "zlib";
+import { TypeIO } from "../ported/TypeIO.js";
 import { Point2 } from "../ported/Point2.js";
+import * as zlib from "zlib";
 
 export class Schematic {
 	static headerBytes: number[] = ['m', 's', 'c', 'h'].map(char => char.charCodeAt(0));

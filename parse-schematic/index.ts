@@ -3,12 +3,8 @@
  */
 import * as fs from "fs";
 import * as path from "path";
-import { SmartBuffer } from "./ported/SmartBuffer.js";
-import * as zlib from "zlib";
 import { parseArgs } from "./funcs.js";
-import { Config } from "./classes/Config.js";
 import { Schematic } from "./classes/Schematic.js";
-import { Point2 } from "./ported/Point2.js";
 
 
 

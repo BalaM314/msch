@@ -1,4 +1,4 @@
-import { ConfigType, ConfigValue } from "../types";
+import { ConfigType, ConfigValue } from "../types.js";
 
 /**Wrapper for configs that preserves type. */
 export class Config {
