@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Mindustry schematic buildtool.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -22,5 +23,8 @@
   "homepage": "https://github.com/BalaM314/msch#readme",
   "devDependencies": {
     "@types/node": "^17.0.33"
+  },
+  "dependencies": {
+    "smart-buffer": "^4.2.0"
   }
 }
