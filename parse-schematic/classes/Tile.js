@@ -15,17 +15,27 @@ export class Tile {
     isProcessor() {
         return Tile.logicBlocks.includes(this.name);
     }
-    decompressLogicCode() {
-        if (!this.isProcessor)
-            return null;
+    static decompressLogicCode(rawData) {
         let data = new SmartBuffer({
-            buff: zlib.inflateSync(Uint8Array.from(this.config.value))
+            buff: zlib.inflateSync(Uint8Array.from(rawData))
         });
         let version = data.readInt8();
         if (version != 1)
             throw new Error(`Unsupported logic code of version ${version}`);
         let length = data.readInt32BE();
-        return data.readBuffer(length).toString();
+        return data.readBuffer(length).toString().split(/\r?\n/g);
+        //TODO parse links
+    }
+    static compressLogicCode(code) {
+        let output = new SmartBuffer();
+        output.writeInt8(Tile.logicVersion);
+        let outputCode = code.join("\n");
+        output.writeInt32BE(outputCode.length);
+        output.writeBuffer(Buffer.from(outputCode));
+        //TODO links
+        output.writeInt32BE(0);
+        return Array.from(zlib.deflateSync(output.toBuffer()));
     }
 }
 Tile.logicBlocks = ["micro-processor", "logic-processor", "hyper-processor"];
+Tile.logicVersion = 1;

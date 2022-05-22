@@ -29,3 +29,9 @@ export function parseArgs(args) {
     }
     return [parsedArgs, mainArgs];
 }
+export function toHexCodes(buf) {
+    return Array.from(buf).map(el => ("00" + el.toString(16).toUpperCase()).slice(-2));
+}
+export function fromHexCodes(str) {
+    return Buffer.from(str.split(" ").map(el => parseInt(el, 16)));
+}
