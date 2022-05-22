@@ -5,6 +5,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { SmartBuffer as _SmartBuffer } from "smart-buffer";
 import * as zlib from "zlib";
+import { ConfigType } from "./types.js";
 /**Parses command line args. */
 function parseArgs(args) {
     let parsedArgs = {};
@@ -36,6 +37,7 @@ function parseArgs(args) {
     }
     return [parsedArgs, mainArgs];
 }
+/**Extension of SmartBuffer with extra methods. */
 class SmartBuffer extends _SmartBuffer {
     readNullByte() {
         let byte = this.readUInt8();
@@ -65,7 +67,12 @@ class Tile {
         return `${this.name}`;
     }
 }
-class Point2 {
+/**Partial port of arc.math.geom.Point2 */
+export class Point2 {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
     static x(pos) {
         return pos >>> 16;
     }
@@ -74,6 +81,12 @@ class Point2 {
     }
     static pack(x, y) {
         return ((x) << 16) | ((y) & 0xFFFF);
+    }
+    static from(point) {
+        return new Point2(Point2.x(point), Point2.y(point));
+    }
+    pack() {
+        return Point2.pack(this.x, this.y);
     }
 }
 class Schematic {
@@ -210,56 +223,106 @@ class TypeIO {
         let type = buf.readInt8();
         switch (type) {
             case 0:
-                return null;
+                return new Config(ConfigType.null, null);
             case 1:
-                return buf.readInt32BE();
+                return new Config(ConfigType.int, buf.readInt32BE());
             case 2:
-                return buf.readBigInt64BE();
+                return new Config(ConfigType.long, buf.readBigInt64BE());
             case 3:
-                return buf.readFloatBE();
+                return new Config(ConfigType.float, buf.readFloatBE());
             case 4:
                 let exists = buf.readInt8();
                 if (exists != 0) {
-                    return buf.readUTF8();
+                    return new Config(ConfigType.string, buf.readUTF8());
                 }
                 else {
-                    return null;
+                    return new Config(ConfigType.string, null);
                 }
+            case 5:
+                //TODO return this in a correct format;
+                return new Config(ConfigType.content, [buf.readInt8(), buf.readInt16BE()]);
+            case 6:
+                let numbers = [];
+                for (let i = 0; i < buf.readInt16BE(); i++) {
+                    numbers.push(buf.readInt32BE());
+                }
+                return new Config(ConfigType.content, numbers);
+            case 7:
+                return new Config(ConfigType.point, new Point2(buf.readInt32BE(), buf.readInt32BE()));
+            case 8:
+                let points = [];
+                for (let i = 0; i < buf.readInt16BE(); i++) {
+                    points.push(Point2.from(buf.readInt32BE()));
+                }
+                return new Config(ConfigType.pointarray, points);
+            case 10:
+                return new Config(ConfigType.boolean, !!buf.readUInt8());
+            case 11:
+                return new Config(ConfigType.double, !!buf.readDoubleBE());
+            case 12:
+                //Should technically be a BuildingBox, but thats equivalent to a Point2 for this program.
+                return new Config(ConfigType.buildingbox, Point2.from(buf.readInt32BE()));
             default:
-                throw new Error("Unknown or not implemented object type for a tile.");
+                throw new Error(`Unknown or not implemented object type (${type}) for a tile.`);
         }
     }
     static writeObject(buf, object) {
-        if (object == null) {
-            buf.writeUInt8(0);
-        }
-        else if (typeof object == "number" || object % 1 == object) {
-            buf.writeUInt8(1);
-            buf.writeUInt32BE(object);
-        }
-        else if (typeof object == "bigint") {
-            buf.writeUInt8(2);
-            buf.writeBigInt64BE(object);
-        }
-        else if (typeof object == "number" || object % 1 != object) {
-            buf.writeUInt8(3);
-            buf.writeFloatBE(object);
-        }
-        else if (typeof object == "string" || object instanceof String) {
-            buf.writeUInt8(4);
-            if (object.length == 0) {
-                buf.writeUInt8(0);
-            }
-            else {
-                buf.writeUInt8(1);
-                buf.writeString(object.toString());
-            }
-        }
-        else {
-            throw new Error("Unknown or not implemented object type for a tile.");
+        buf.writeUInt8(object.type);
+        switch (object.type) {
+            case ConfigType.null:
+                break;
+            case ConfigType.int:
+                buf.writeUInt32BE(object.value);
+                break;
+            case ConfigType.long:
+                buf.writeBigInt64BE(object.value);
+                break;
+            case ConfigType.float:
+                buf.writeFloatBE(object.value);
+                break;
+            case ConfigType.string:
+                if (object.value) {
+                    buf.writeUInt8(1);
+                    buf.writeUTF8(object.value);
+                }
+                else {
+                    buf.writeUInt8(0);
+                }
+                break;
+            case ConfigType.content:
+                buf.writeUInt8(object.value[0]);
+                buf.writeInt16BE(object.value[1]);
+                break;
+            case ConfigType.intarray:
+                buf.writeInt16BE(object.value.length);
+                for (let number of object.value) {
+                    buf.writeInt32BE(number);
+                }
+                break;
+            case ConfigType.point:
+                buf.writeInt32BE(object.value.x);
+                buf.writeInt32BE(object.value.y);
+                break;
+            case ConfigType.pointarray:
+                buf.writeInt16BE(object.value.length);
+                for (let point of object.value) {
+                    buf.writeInt32BE(point.pack());
+                }
+                break;
+            //TODO implement the rest of them.
+            default:
+                throw new Error(`Unknown or not implemented object type (${object.type}) for a tile.`);
         }
     }
 }
+/**Wrapper for configs that preserves type. */
+class Config {
+    constructor(type, value) {
+        this.type = type;
+        this.value = value;
+    }
+}
+Config.null = new Config(ConfigType.null, null);
 function main(argv) {
     const [parsedArgs, mainArgs] = parseArgs(argv.slice(2));
     if (!mainArgs[0]) {
@@ -270,7 +333,7 @@ function main(argv) {
     let schem = Schematic.from(fs.readFileSync(mainArgs[0]));
     console.log(`Loaded schematic ${mainArgs[0]}`);
     schem.displayTiles();
-    schem.setTileAt(1, 1, new Tile("phase-wall", Point2.pack(1, 1), null, 0));
+    schem.setTileAt(1, 1, new Tile("phase-wall", Point2.pack(1, 1), Config.null, 0));
     console.log(`Modified schematic ${mainArgs[0]}`);
     schem.displayTiles();
     let outputPath = path.join(mainArgs[0], "..", "modified-" + mainArgs[0].split(path.sep).at(-1));

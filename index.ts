@@ -5,33 +5,34 @@ import * as fs from "fs";
 import * as path from "path";
 import { SmartBuffer as _SmartBuffer } from "smart-buffer";
 import * as zlib from "zlib";
+import { ConfigType, ConfigValue } from "./types.js";
 
 
 /**Parses command line args. */
 function parseArgs(args: string[]): [
-	parsedArgs: {[index: string]: string;},
+	parsedArgs: { [index: string]: string; },
 	mainArgs: string[]
-]{
+] {
 	let parsedArgs: {
 		[index: string]: string;
 	} = {};
 	let mainArgs: string[] = [];
 	let i = 0;
-	while(true){
-		i ++;
-		if(i > 1000){throw new Error("Too many arguments!");}
+	while (true) {
+		i++;
+		if (i > 1000) { throw new Error("Too many arguments!"); }
 		let arg = args.splice(0, 1)[0];
-		if(arg == undefined) break;
-		if(arg.startsWith("--")){
-			if(args[0]?.startsWith("-"))
+		if (arg == undefined) break;
+		if (arg.startsWith("--")) {
+			if (args[0]?.startsWith("-"))
 				parsedArgs[arg] = "null";
 			else
-				parsedArgs[arg.substring(2)] = args.splice(0,1)[0] ?? "null";
-		} else if(arg.startsWith("-")){
-			if(args[0]?.startsWith("-"))
+				parsedArgs[arg.substring(2)] = args.splice(0, 1)[0] ?? "null";
+		} else if (arg.startsWith("-")) {
+			if (args[0]?.startsWith("-"))
 				parsedArgs[arg] = "null";
 			else
-				parsedArgs[arg.substring(1)] = args.splice(0,1)[0] ?? "null";
+				parsedArgs[arg.substring(1)] = args.splice(0, 1)[0] ?? "null";
 		} else {
 			mainArgs.push(arg);
 		}
@@ -39,17 +40,18 @@ function parseArgs(args: string[]): [
 	return [parsedArgs, mainArgs];
 }
 
+/**Extension of SmartBuffer with extra methods. */
 class SmartBuffer extends _SmartBuffer {
-	readNullByte(){
+	readNullByte() {
 		let byte = this.readUInt8();
-		if(byte != 0) throw new Error(`Expected null byte, got ${byte.toString(16)}`);
+		if (byte != 0) throw new Error(`Expected null byte, got ${byte.toString(16)}`);
 	}
-	readUTF8(){
+	readUTF8() {
 		this.readNullByte();
 		let size = this.readUInt8();
 		return this.readString(size);
 	}
-	writeUTF8(str:string){
+	writeUTF8(str: string) {
 		this.writeUInt8(0);
 		this.writeUInt8(str.length);
 		this.writeString(str);
@@ -59,50 +61,57 @@ class SmartBuffer extends _SmartBuffer {
 class Tile {
 	x: number;
 	y: number;
-	constructor(public name:string, position:number, public config:any, public rotation:number){
+	constructor(public name: string, position: number, public config: Config, public rotation: number) {
 		this.x = Point2.x(position);
 		this.y = Point2.y(position);
 	}
-	toString(){
+	toString() {
 		return `${this.name}`;
 	}
 }
-
-class Point2 {
-	static x(pos:number){
+/**Partial port of arc.math.geom.Point2 */
+export class Point2 {
+	constructor(public x:number, public y:number){}
+	static x(pos: number) {
 		return pos >>> 16;
 	}
-	static y(pos:number){
+	static y(pos: number) {
 		return pos & 0xFFFF;
 	}
-	static pack(x:number, y:number){
+	static pack(x: number, y: number) {
 		return ((x) << 16) | ((y) & 0xFFFF);
+	}
+	static from(point: number): Point2 {
+		return new Point2(Point2.x(point), Point2.y(point));
+	}
+	pack(){
+		return Point2.pack(this.x, this.y);
 	}
 }
 
 class Schematic {
-	static headerBytes:number[] = ['m','s','c','h'].map(char => char.charCodeAt(0));
+	static headerBytes: number[] = ['m', 's', 'c', 'h'].map(char => char.charCodeAt(0));
 	/**Tiles arranged in a grid. */
-	tiles: (Tile|null)[][] = [];
+	tiles: (Tile | null)[][] = [];
 	constructor(
-		public height:number,
-		public width:number,
-		public version:number,
+		public height: number,
+		public width: number,
+		public version: number,
 		public tags: {
-			[name:string]: string;
+			[name: string]: string;
 		},
-		public labels:string[],
-		tiles:Tile[]
-	){
+		public labels: string[],
+		tiles: Tile[]
+	) {
 		this.tiles = Schematic.sortTiles(tiles, width, height);
 	}
 
-	static from(inputData:Buffer){
+	static from(inputData: Buffer) {
 		let rawData = new SmartBuffer({
 			buff: inputData
 		});
-		for(let char of Schematic.headerBytes){
-			if(rawData.readUInt8() != char){
+		for (let char of Schematic.headerBytes) {
+			if (rawData.readUInt8() != char) {
 				throw new Error("Data is not a schematic.");
 			}
 		}
@@ -113,27 +122,27 @@ class Schematic {
 		});
 		console.log(Array.from(data.toBuffer()).map(el => ('00' + el.toString(16).toUpperCase()).slice(-2)).join(" "));
 		let [width, height] = [data.readUInt16BE(), data.readUInt16BE()];
-		if(width > 128 || height > 128) throw new Error("Schematic is too large.");
+		if (width > 128 || height > 128) throw new Error("Schematic is too large.");
 		console.log(`Size: ${width}x${height}`);
-		
+
 		let tagcount = data.readUInt8();
-		let tags:typeof Schematic.prototype.tags = {};
+		let tags: typeof Schematic.prototype.tags = {};
 		console.log(`${tagcount} tags.`);
-		for(let i = 0; i < tagcount; i ++){
+		for (let i = 0; i < tagcount; i++) {
 			tags[data.readUTF8()] = data.readUTF8();
 		}
 		console.log(`Tags: `, tags);
-		let labels:string[] = [];
+		let labels: string[] = [];
 		try {
 			labels = JSON.parse(tags["labels"]);
-		} catch(err){
+		} catch (err) {
 			console.warn("Failed to parse labels.");
 		}
 
 		let numBlocks = data.readUInt8();
 		console.log(`${numBlocks} blocks.`);
-		let blocks:Map<number, string> = new Map();
-		for(let i = 0; i < numBlocks; i ++){
+		let blocks: Map<number, string> = new Map();
+		for (let i = 0; i < numBlocks; i++) {
 			blocks.set(i, data.readUTF8());
 		}
 		console.log(`Blocks: [${Object.values(blocks).join(", ")}]`);
@@ -141,21 +150,21 @@ class Schematic {
 		let numTiles = data.readInt32BE();
 		let tiles: ReturnType<typeof Schematic.unsortTiles> = [];
 		console.log(`${numTiles} tiles.`);
-		if(width > 128 || height > 128) throw new Error("Schematic contains too many tiles.");
-		for(let i = 0; i < numTiles; i ++){
+		if (width > 128 || height > 128) throw new Error("Schematic contains too many tiles.");
+		for (let i = 0; i < numTiles; i++) {
 			let id = data.readInt8();
 			let block = blocks.get(id)!;
 			let position = data.readInt32BE();
 			let config = TypeIO.readObject(data);
 			let rotation = data.readInt8();
-			if(block && block != "air") tiles.push(new Tile(block, position, config, rotation));
+			if (block && block != "air") tiles.push(new Tile(block, position, config, rotation));
 		}
 		return new Schematic(height, width, version, tags, labels, tiles);
 	}
 
-	write():SmartBuffer {
+	write(): SmartBuffer {
 		let output = new SmartBuffer();
-		for(let char of Schematic.headerBytes){
+		for (let char of Schematic.headerBytes) {
 			output.writeUInt8(char);
 		}
 		output.writeUInt8(this.version);
@@ -170,12 +179,12 @@ class Schematic {
 		let blocks = Schematic.getBlockMap(unsortedTiles);
 
 		compressableData.writeUInt8(blocks.size);
-		for(let name of blocks.values()){
+		for (let name of blocks.values()) {
 			compressableData.writeUTF8(name);
 		}
 
 		compressableData.writeInt32BE(unsortedTiles.length);
-		for(let tile of unsortedTiles){
+		for (let tile of unsortedTiles) {
 			compressableData.writeUInt8(Array.from(blocks.values()).indexOf(tile.name));
 			compressableData.writeInt32BE(Point2.pack(tile.x, tile.y));
 			TypeIO.writeObject(compressableData, tile.config);
@@ -187,99 +196,153 @@ class Schematic {
 
 		return output;
 	}
-	static getBlockMap(unsortedTiles: Tile[]){
+	static getBlockMap(unsortedTiles: Tile[]) {
 		let blockMap = new Set<string>();
 		unsortedTiles.forEach(tile => blockMap.add(tile.name));
 		return blockMap;
 	}
 
 
-	static sortTiles(tiles:Tile[], width:number, height:number): (Tile|null)[][] {
+	static sortTiles(tiles: Tile[], width: number, height: number): (Tile | null)[][] {
 		let sortedTiles = new Array<Tile[]>(width);
-		for(let tile of tiles){
+		for (let tile of tiles) {
 			sortedTiles[tile.x] ??= new Array(height);
 			sortedTiles[tile.x][tile.y] = tile;
 		}
 		return sortedTiles;
 	}
-	static unsortTiles(tiles:(Tile|null)[][]): Tile[] {
-		let unsortedTiles:Tile[] = [];
-		for(let column of tiles){
-			for(let tile of column){
-				if(tile != null)
+	static unsortTiles(tiles: (Tile | null)[][]): Tile[] {
+		let unsortedTiles: Tile[] = [];
+		for (let column of tiles) {
+			for (let tile of column) {
+				if (tile != null)
 					unsortedTiles.push(tile);
 			}
 		}
 		return unsortedTiles;
 	}
 
-	displayTiles(){
+	displayTiles() {
 		console.table(this.tiles.map(col => col.map(tile => tile?.toString()).reverse()));
 	}
 
 
-	getTileAt(x:number, y:number):Tile|null {
+	getTileAt(x: number, y: number): Tile | null {
 		return this.tiles[x][y];
 	}
-	setTileAt(x:number, y:number, tile:Tile) {
+	setTileAt(x: number, y: number, tile: Tile) {
 		this.tiles[x][y] = tile;
 	}
 }
 
 class TypeIO {
-	static readObject(buf:SmartBuffer) {
+	static readObject(buf: SmartBuffer):Config {
 		let type = buf.readInt8();
-		switch(type){
+		switch (type) {
 			case 0:
-				return null;
+				return new Config(ConfigType.null, null);
 			case 1:
-				return buf.readInt32BE();
+				return new Config(ConfigType.int, buf.readInt32BE());
 			case 2:
-				return buf.readBigInt64BE();
+				return new Config(ConfigType.long, buf.readBigInt64BE());
 			case 3:
-				return buf.readFloatBE();
+				return new Config(ConfigType.float, buf.readFloatBE());
 			case 4:
 				let exists = buf.readInt8();
-        if(exists != 0){
-          return buf.readUTF8();
-        } else {
-          return null;
-        }
+				if (exists != 0) {
+					return new Config(ConfigType.string, buf.readUTF8());
+				} else {
+					return new Config(ConfigType.string, null);
+				}
+			case 5:
+				//TODO return this in a correct format;
+				return new Config(ConfigType.content, [buf.readInt8(), buf.readInt16BE()]);
+			case 6:
+				let numbers:number[] = [];
+				for(let i = 0; i < buf.readInt16BE(); i ++){
+					numbers.push(buf.readInt32BE());
+				}
+				return new Config(ConfigType.content, numbers);
+			case 7:
+				return new Config(ConfigType.point, new Point2(buf.readInt32BE(), buf.readInt32BE()));
+			case 8:
+				let points:Point2[] = [];
+				for(let i = 0; i < buf.readInt16BE(); i ++){
+					points.push(Point2.from(buf.readInt32BE()));
+				}
+				return new Config(ConfigType.pointarray, points);
+			case 10:
+				return new Config(ConfigType.boolean, !! buf.readUInt8());
+			case 11:
+				return new Config(ConfigType.double, !! buf.readDoubleBE());
+			case 12:
+				//Should technically be a BuildingBox, but thats equivalent to a Point2 for this program.
+				return new Config(ConfigType.buildingbox, Point2.from(buf.readInt32BE()));
 			default:
-				throw new Error("Unknown or not implemented object type for a tile.");
+				throw new Error(`Unknown or not implemented object type (${type}) for a tile.`);
 		}
 	}
-	static writeObject(buf:SmartBuffer, object:any){
-		if(object == null){
-			buf.writeUInt8(0);
-		} else if(typeof object == "number" || object % 1 == object){
-			buf.writeUInt8(1);
-			buf.writeUInt32BE(object)
-		} else if(typeof object == "bigint"){
-			buf.writeUInt8(2);
-			buf.writeBigInt64BE(object);
-		} else if(typeof object == "number" || object % 1 != object){
-			buf.writeUInt8(3);
-			buf.writeFloatBE(object);
-		} else if(typeof object == "string" || object instanceof String){
-			buf.writeUInt8(4);
-			if(object.length == 0){
-				buf.writeUInt8(0);
-			} else {
-				buf.writeUInt8(1);
-				buf.writeString(object.toString());
-			}
-		} else {
-			throw new Error("Unknown or not implemented object type for a tile.");
+
+	static writeObject(buf: SmartBuffer, object: Config) {
+		buf.writeUInt8(object.type);
+		switch (object.type) {
+			case ConfigType.null:
+				break;
+			case ConfigType.int:
+				buf.writeUInt32BE(object.value as number);
+				break;
+			case ConfigType.long:
+				buf.writeBigInt64BE(object.value as bigint);
+				break;
+			case ConfigType.float:
+				buf.writeFloatBE(object.value as number);
+				break;
+			case ConfigType.string:
+				if (object.value) {
+					buf.writeUInt8(1);
+					buf.writeUTF8(object.value as string);
+				} else {
+					buf.writeUInt8(0);
+				}
+				break;
+			case ConfigType.content:
+				buf.writeUInt8((object.value as [type: number, id: number])[0]);
+				buf.writeInt16BE((object.value as [type: number, id: number])[1]);
+				break;
+			case ConfigType.intarray:
+				buf.writeInt16BE((object.value as number[]).length);
+				for (let number of (object.value as number[])) {
+					buf.writeInt32BE(number);
+				}
+				break;
+			case ConfigType.point:
+				buf.writeInt32BE((object.value as Point2).x);
+				buf.writeInt32BE((object.value as Point2).y);
+				break;
+			case ConfigType.pointarray:
+				buf.writeInt16BE((object.value as Point2[]).length);
+				for (let point of (object.value as Point2[])) {
+					buf.writeInt32BE(point.pack());
+				}
+				break;
+			//TODO implement the rest of them.
+			default:
+				throw new Error(`Unknown or not implemented object type (${object.type}) for a tile.`);
 		}
 	}
 }
 
+/**Wrapper for configs that preserves type. */
+class Config {
+	static null = new Config(ConfigType.null, null);
+	constructor(public type: ConfigType, public value: ConfigValue) { }
+}
 
 
-function main(argv:string[]){
+
+function main(argv: string[]) {
 	const [parsedArgs, mainArgs] = parseArgs(argv.slice(2));
-	if(!mainArgs[0]){
+	if (!mainArgs[0]) {
 		console.error("Please specify a schematic file to load");
 		return 1;
 	}
@@ -287,7 +350,7 @@ function main(argv:string[]){
 	let schem = Schematic.from(fs.readFileSync(mainArgs[0]));
 	console.log(`Loaded schematic ${mainArgs[0]}`);
 	schem.displayTiles();
-	schem.setTileAt(1, 1, new Tile("phase-wall", Point2.pack(1, 1), null, 0));
+	schem.setTileAt(1, 1, new Tile("phase-wall", Point2.pack(1, 1), Config.null, 0));
 	console.log(`Modified schematic ${mainArgs[0]}`);
 	schem.displayTiles();
 	let outputPath = path.join(mainArgs[0], "..", "modified-" + mainArgs[0].split(path.sep).at(-1));
@@ -298,7 +361,7 @@ function main(argv:string[]){
 
 try {
 	main(process.argv);
-} catch(err){
+} catch (err) {
 	console.error("Unhandled runtime error!");
 	console.error(err);
 	process.exit(1);
