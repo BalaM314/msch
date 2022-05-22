@@ -1,4 +1,5 @@
-import { Point2 } from "./index.js";
+import { Point2 } from "./ported/Point2";
+
 
 export enum ConfigType {
 	null = 0,
