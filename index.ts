@@ -78,7 +78,7 @@ class Tile {
 			buff: zlib.inflateSync(Uint8Array.from(this.config.value as number[]))
 		});
 		let version = data.readInt8();
-		if(version != 1) throw new Error(`Unsupported logic code of version ${1}`);
+		if(version != 1) throw new Error(`Unsupported logic code of version ${version}`);
 		let length = data.readInt32BE();
 		return data.readBuffer(length).toString();
 		
