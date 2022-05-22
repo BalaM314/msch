@@ -1,7 +1,7 @@
 import { Point2 } from "./ported/Point2.js";
 
 
-export enum ConfigType {
+export enum BlockConfigType {
 	null = 0,
 	int = 1,
 	long = 2,
@@ -21,4 +21,4 @@ export enum ConfigType {
 	booleanarray = 16,
 	unit = 17,
 };
-export type ConfigValue = null | number | bigint | string | [type: number, id: number] | number[] | Point2 | Point2[] | boolean;
+export type BlockConfigValue = null | number | bigint | string | [type: number, id: number] | number[] | Point2 | Point2[] | boolean;

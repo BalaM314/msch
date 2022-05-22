@@ -1,22 +1,22 @@
-export var ConfigType;
-(function (ConfigType) {
-    ConfigType[ConfigType["null"] = 0] = "null";
-    ConfigType[ConfigType["int"] = 1] = "int";
-    ConfigType[ConfigType["long"] = 2] = "long";
-    ConfigType[ConfigType["float"] = 3] = "float";
-    ConfigType[ConfigType["string"] = 4] = "string";
-    ConfigType[ConfigType["content"] = 5] = "content";
-    ConfigType[ConfigType["intarray"] = 6] = "intarray";
-    ConfigType[ConfigType["point"] = 7] = "point";
-    ConfigType[ConfigType["pointarray"] = 8] = "pointarray";
+export var BlockConfigType;
+(function (BlockConfigType) {
+    BlockConfigType[BlockConfigType["null"] = 0] = "null";
+    BlockConfigType[BlockConfigType["int"] = 1] = "int";
+    BlockConfigType[BlockConfigType["long"] = 2] = "long";
+    BlockConfigType[BlockConfigType["float"] = 3] = "float";
+    BlockConfigType[BlockConfigType["string"] = 4] = "string";
+    BlockConfigType[BlockConfigType["content"] = 5] = "content";
+    BlockConfigType[BlockConfigType["intarray"] = 6] = "intarray";
+    BlockConfigType[BlockConfigType["point"] = 7] = "point";
+    BlockConfigType[BlockConfigType["pointarray"] = 8] = "pointarray";
     //techNode = 9,
-    ConfigType[ConfigType["boolean"] = 10] = "boolean";
-    ConfigType[ConfigType["double"] = 11] = "double";
-    ConfigType[ConfigType["building"] = 12] = "building";
-    ConfigType[ConfigType["buildingbox"] = 12] = "buildingbox";
+    BlockConfigType[BlockConfigType["boolean"] = 10] = "boolean";
+    BlockConfigType[BlockConfigType["double"] = 11] = "double";
+    BlockConfigType[BlockConfigType["building"] = 12] = "building";
+    BlockConfigType[BlockConfigType["buildingbox"] = 12] = "buildingbox";
     //laccess = 13,
-    ConfigType[ConfigType["bytearray"] = 14] = "bytearray";
-    ConfigType[ConfigType["booleanarray"] = 16] = "booleanarray";
-    ConfigType[ConfigType["unit"] = 17] = "unit";
-})(ConfigType || (ConfigType = {}));
+    BlockConfigType[BlockConfigType["bytearray"] = 14] = "bytearray";
+    BlockConfigType[BlockConfigType["booleanarray"] = 16] = "booleanarray";
+    BlockConfigType[BlockConfigType["unit"] = 17] = "unit";
+})(BlockConfigType || (BlockConfigType = {}));
 ;

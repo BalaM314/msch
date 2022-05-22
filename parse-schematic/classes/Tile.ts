@@ -1,13 +1,13 @@
 import { SmartBuffer } from "../ported/SmartBuffer.js";
 import { Point2 } from "../ported/Point2.js";
-import { Config } from "./Config.js";
+import { BlockConfig } from "./BlockConfig.js";
 import * as zlib from "zlib";
 
 export class Tile {
 	x: number;
 	y: number;
 	static logicBlocks: string[] = ["micro-processor", "logic-processor", "hyper-processor"];
-	constructor(public name: string, position: number, public config: Config, public rotation: number) {
+	constructor(public name: string, position: number, public config: BlockConfig, public rotation: number) {
 		this.x = Point2.x(position);
 		this.y = Point2.y(position);
 	}
