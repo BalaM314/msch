@@ -75,11 +75,12 @@ class Tile {
 	decompressLogicCode(){
 		if(!this.isProcessor) return null;
 		let data = new SmartBuffer({
-			buff: zlib.deflateSync(Uint8Array.from(this.config.value as number[]))
+			buff: zlib.inflateSync(Uint8Array.from(this.config.value as number[]))
 		});
-		let version = data.readInt16BE();
-		console.log(Array.from(data.toBuffer()).map(el => ('00' + el.toString(16).toUpperCase()).slice(-2)).join(" "));
-		console.log(version);
+		let version = data.readInt8();
+		if(version != 1) throw new Error(`Unsupported logic code of version ${1}`);
+		let length = data.readInt32BE();
+		return data.readBuffer(length).toString();
 		
 
 	}
