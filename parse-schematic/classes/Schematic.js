@@ -13,6 +13,7 @@ export class Schematic {
         /**Tiles arranged in a grid. */
         this.tiles = [];
         this.tiles = Schematic.sortTiles(tiles, width, height);
+        this.loadConfigs();
     }
     static from(inputData) {
         let rawData = new SmartBuffer({
@@ -24,22 +25,22 @@ export class Schematic {
             }
         }
         let version = rawData.readInt8();
-        console.log(`Version: ${version}`);
+        console.debug(`Version: ${version}`);
         let data = new SmartBuffer({
             buff: zlib.inflateSync(inputData.slice(5))
         });
-        console.log(Array.from(data.toBuffer()).map(el => ('00' + el.toString(16).toUpperCase()).slice(-2)).join(" "));
+        console.debug(Array.from(data.toBuffer()).map(el => ('00' + el.toString(16).toUpperCase()).slice(-2)).join(" "));
         let [width, height] = [data.readUInt16BE(), data.readUInt16BE()];
         if (width > 128 || height > 128)
             throw new Error("Schematic is too large.");
-        console.log(`Size: ${width}x${height}`);
+        console.debug(`Size: ${width}x${height}`);
         let tagcount = data.readUInt8();
         let tags = {};
-        console.log(`${tagcount} tags.`);
+        console.debug(`${tagcount} tags.`);
         for (let i = 0; i < tagcount; i++) {
             tags[data.readUTF8()] = data.readUTF8();
         }
-        console.log(`Tags: `, tags);
+        console.debug(`Tags: `, tags);
         let labels = [];
         try {
             labels = JSON.parse(tags["labels"]);
@@ -48,15 +49,15 @@ export class Schematic {
             console.warn("Failed to parse labels.");
         }
         let numBlocks = data.readUInt8();
-        console.log(`${numBlocks} blocks.`);
+        console.debug(`${numBlocks} blocks.`);
         let blocks = new Map();
         for (let i = 0; i < numBlocks; i++) {
             blocks.set(i, data.readUTF8());
         }
-        console.log(`Blocks: [${Object.values(blocks).join(", ")}]`);
+        console.debug(`Blocks: [${Object.values(blocks).join(", ")}]`);
         let numTiles = data.readInt32BE();
         let tiles = [];
-        console.log(`${numTiles} tiles.`);
+        console.debug(`${numTiles} tiles.`);
         if (numTiles > width * height)
             throw new Error("Schematic contains too many tiles.");
         for (let i = 0; i < numTiles; i++) {
@@ -70,7 +71,26 @@ export class Schematic {
         }
         return new Schematic(height, width, version, tags, labels, tiles);
     }
+    loadConfigs() {
+        for (let column of this.tiles) {
+            for (let tile of column) {
+                if (tile?.isProcessor()) {
+                    tile.decompressLogicConfig();
+                }
+            }
+        }
+    }
+    saveConfigs() {
+        for (let column of this.tiles) {
+            for (let tile of column) {
+                if (tile?.isProcessor()) {
+                    tile.compressLogicConfig();
+                }
+            }
+        }
+    }
     write() {
+        this.saveConfigs();
         let output = new SmartBuffer();
         for (let char of Schematic.headerBytes) {
             output.writeUInt8(char);

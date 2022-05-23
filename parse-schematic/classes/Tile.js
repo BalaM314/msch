@@ -16,30 +16,42 @@ export class Tile {
     isProcessor() {
         return Tile.logicBlocks.includes(this.name);
     }
-    static decompressLogicCode(rawData) {
-        console.log("Decompressing code: ", toHexCodes(Buffer.from(rawData)).join(" "));
+    decompressLogicConfig() {
+        if (!this.isProcessor())
+            throw new Error("not a processor");
+        console.debug("Decompressing code: ", toHexCodes(Buffer.from(this.config.value)).join(" "));
         let data = new SmartBuffer({
-            buff: zlib.inflateSync(Uint8Array.from(rawData))
+            buff: zlib.inflateSync(Uint8Array.from(this.config.value))
         });
-        console.log("Decompressed code: ", toHexCodes(data.toBuffer()).join(" "));
+        console.debug("Decompressed code: ", toHexCodes(data.toBuffer()).join(" "));
         let version = data.readInt8();
         if (version != 1)
             throw new Error(`Unsupported logic code of version ${version}`);
         let length = data.readInt32BE();
-        return data.readBuffer(length).toString().split(/\r?\n/g);
-        //TODO parse links
+        this.code = data.readBuffer(length).toString().split(/\r?\n/g);
+        let numLinks = data.readInt32BE();
+        this.links ??= [];
+        for (let i = 0; i < numLinks; i++) {
+            this.links.push({
+                name: data.readUTF8(),
+                x: data.readInt16BE(),
+                y: data.readInt16BE()
+            });
+        }
     }
-    static compressLogicCode(code) {
+    compressLogicConfig() {
+        if (!this.code || !this.isProcessor())
+            throw new Error("not a processor");
         let output = new SmartBuffer();
         output.writeInt8(Tile.logicVersion);
-        let outputCode = Buffer.from(code.join("\n"));
+        let outputCode = Buffer.from(this.code.join("\n"));
         output.writeInt32BE(outputCode.length);
         output.writeBuffer(outputCode);
         //TODO links
         output.writeInt32BE(0);
-        console.log("Precompressed code: ", toHexCodes(output.toBuffer()).join(" "));
+        console.debug("Precompressed code: ", toHexCodes(output.toBuffer()).join(" "));
         let compressedData = zlib.deflateSync(output.toBuffer());
-        console.log("Compressed code: ", toHexCodes(compressedData).join(" "));
+        console.debug("Compressed code: ", toHexCodes(compressedData).join(" "));
         return Array.from(compressedData);
     }
 }
