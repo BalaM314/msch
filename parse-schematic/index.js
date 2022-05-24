@@ -7,7 +7,7 @@ import { Schematic } from "./classes/Schematic.js";
 import { Tile } from "./classes/Tile.js";
 function main(argv) {
     const [parsedArgs, mainArgs] = parseArgs(argv);
-    const mark = `print "Made with https://github.com/BalaM314/msch"`;
+    const processorCode = [`print "Made with https://github.com/BalaM314/msch"`, `printflush messageSussy`];
     let wallType = "copper-wall";
     if ("help" in parsedArgs || Object.keys(parsedArgs).length == 0) {
         console.log(`MSCH: The best tool to make 3x3 Mindustry schematics consisting of 6 walls and a processor with a sussy link name.
@@ -32,7 +32,7 @@ Usage: msch [--help] [--output <output>] [--wall <wall>] [--name <name>]
         description: "Hacked with https://github.com/BalaM314/msch"
     }, [], [
         new Tile(wallType, 0, 2), new Tile(wallType, 1, 2), new Tile(wallType, 2, 2),
-        new Tile("micro-processor", 0, 1, [mark]), new Tile("message", 2, 1),
+        new Tile("micro-processor", 0, 1, processorCode), new Tile("message", 2, 1),
         new Tile(wallType, 0, 0), new Tile(wallType, 1, 0), new Tile(wallType, 2, 0)
     ]);
     schem.getTileAt(0, 1).links.push({
@@ -43,7 +43,7 @@ Usage: msch [--help] [--output <output>] [--wall <wall>] [--name <name>]
     if ("output" in parsedArgs) {
         let outputPath = parsedArgs["output"]?.endsWith(".msch") ? parsedArgs["output"] : parsedArgs["output"] + ".msch";
         fs.writeFileSync(outputPath, schem.write().toBuffer());
-        console.log(`Wrote modified file to ${outputPath}.`);
+        console.log(`Wrote modified file to ${outputPath}.\nNote that you need to place the message first!`);
     }
     else {
         console.log(`Use the --output flag to specify the location to output the schematic.`);
