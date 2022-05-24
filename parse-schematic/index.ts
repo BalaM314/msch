@@ -23,8 +23,8 @@ function main(argv: string[]) {
 	]);
 	schem.getTileAt(0, 1)!.links!.push({
 		name: "messageSussy",
-		x: 0,
-		y: 2
+		x: 2,
+		y: 1
 	});
 
 	if("output" in parsedArgs){
