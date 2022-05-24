@@ -5,7 +5,6 @@ import * as fs from "fs";
 import * as path from "path";
 import { parseArgs } from "./funcs.js";
 import { Schematic } from "./classes/Schematic.js";
-import { Tile } from "./classes/Tile.js";
 
 
 
