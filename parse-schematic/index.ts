@@ -26,18 +26,25 @@ function main(argv: string[]) {
 		console.log("Code of proc at 0, 0: ", code);
 		console.log(`Replacing "hello world" with "hi mom"`);
 		tile.code = code.map(line => line.replaceAll("hello world", "hi mom"));
+		console.log("Links:", tile.links);
+		if(tile.links!.filter(link => link.x == 2 && link.y == 0).length > 0){
+			console.log(`Removed existing link to block two tiles right`);
+			tile.links = tile.links!.filter(link => link.x != 2 || link.y != 0);
+		}
 		console.log(`Adding link to messageSussy (two tiles right)`);
-		tile.links![0] = {
+		tile.links!.push({
 			name: "messageSussy",
 			x: 2,
 			y: 0
-		};
-
+		});
+		
 		let outputPath = path.join(mainArgs[0], "..", "modified-" + mainArgs[0].split(path.sep).at(-1));
 		schem.tags["description"] = "Modified";
 		schem.tags["name"] = schem.tags["name"] + "-modified";
-		fs.writeFileSync(outputPath, schem.write().toBuffer());
-		console.log(`Wrote modified file to ${outputPath}`);
+		if("write" in parsedArgs){
+			fs.writeFileSync(outputPath, schem.write().toBuffer());
+			console.log(`Wrote modified file to ${outputPath}`);
+		}
 	}
 }
 

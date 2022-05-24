@@ -47,8 +47,9 @@ export class Tile {
 			});
 		}
 	}
-	compressLogicConfig():number[] {
-		if(!this.code || !this.isProcessor()) throw new Error("not a processor");
+	compressLogicConfig(){
+		if(!this.isProcessor()) throw new Error("not a processor");
+		if(!this.links || !this.code) throw new Error("Data not decompressed");
 		let output = new SmartBuffer();
 		output.writeInt8(Tile.logicVersion);
 
@@ -56,13 +57,17 @@ export class Tile {
 		output.writeInt32BE(outputCode.length);
 		output.writeBuffer(outputCode);
 
-		//TODO links
-		output.writeInt32BE(0);
+		output.writeInt32BE(this.links.length);
+		for(let link of this.links){
+			output.writeUTF8(link.name);
+			output.writeInt16BE(link.x);
+			output.writeInt16BE(link.y);
+		}
 
 		console.debug("Precompressed code: ", toHexCodes(output.toBuffer()).join(" "));
 		let compressedData = zlib.deflateSync(output.toBuffer());
 		console.debug("Compressed code: ", toHexCodes(compressedData).join(" "));
-		return Array.from(compressedData);
+		this.config.value = Array.from(compressedData);
 	}
 	
 
