@@ -1,14 +1,29 @@
 import { SmartBuffer } from "../ported/SmartBuffer.js";
-import { Point2 } from "../ported/Point2.js";
+import { BlockConfig } from "./BlockConfig.js";
 import * as zlib from "zlib";
 import { toHexCodes } from "../funcs.js";
+import { BlockConfigType } from "../types.js";
 export class Tile {
-    constructor(name, position, config, rotation) {
+    constructor(name, x, y, config, rotation) {
         this.name = name;
-        this.config = config;
-        this.rotation = rotation;
-        this.x = Point2.x(position);
-        this.y = Point2.y(position);
+        this.x = x;
+        this.y = y;
+        if (config instanceof BlockConfig || config == undefined) {
+            this.config = config ?? BlockConfig.null;
+            this.rotation = rotation ?? 0;
+        }
+        else if (config instanceof Array && (typeof config[0] == "undefined" || typeof config[0] == "string")) {
+            if (!this.isProcessor())
+                throw new Error("not a processor");
+            this.code = config;
+            this.config = new BlockConfig(BlockConfigType.bytearray, []);
+            this.links = [];
+            this.rotation = 0;
+            this.compressLogicConfig();
+        }
+        else {
+            throw new TypeError(`Invalid arguments to Tile constructor ([${Array.from(arguments).join(", ")}])`);
+        }
     }
     toString() {
         return `${this.name}`;

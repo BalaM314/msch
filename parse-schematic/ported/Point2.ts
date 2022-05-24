@@ -10,8 +10,8 @@ export class Point2 {
 	static pack(x: number, y: number) {
 		return ((x) << 16) | ((y) & 0xFFFF);
 	}
-	static unpack(point: number): Point2 {
-		return Point2.from(point);
+	static unpack(point: number): [x:number, y:number] {
+		return [Point2.x(point), Point2.y(point)];
 	}
 	static from(point: number): Point2 {
 		return new Point2(Point2.x(point), Point2.y(point));

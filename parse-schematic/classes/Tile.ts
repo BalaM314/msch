@@ -3,21 +3,36 @@ import { Point2 } from "../ported/Point2.js";
 import { BlockConfig } from "./BlockConfig.js";
 import * as zlib from "zlib";
 import { toHexCodes } from "../funcs.js";
+import { BlockConfigType } from "../types.js";
 
 export class Tile {
-	x: number;
-	y: number;
-	static logicBlocks: string[] = ["micro-processor", "logic-processor", "hyper-processor"];
-	static logicVersion: number = 1;
 	code?: string[];
 	links?: {
 		name: string;
 		x: number;
 		y: number;
 	}[];
-	constructor(public name: string, position: number, public config: BlockConfig, public rotation: number) {
-		this.x = Point2.x(position);
-		this.y = Point2.y(position);
+	config: BlockConfig;
+	rotation: number;
+	static logicBlocks: string[] = ["micro-processor", "logic-processor", "hyper-processor"];
+	static logicVersion: number = 1;
+	constructor(name: string, x: number, y: number, code: string[]);
+	constructor(name: string, x: number, y: number, config?: BlockConfig, rotation?: number);
+
+	constructor(public name:string, public x:number, public y:number, config?: BlockConfig|string[], rotation?:number) {
+		if(config instanceof BlockConfig || config == undefined){
+			this.config = config ?? BlockConfig.null;
+			this.rotation = rotation ?? 0;
+		} else if(config instanceof Array && (typeof config[0] == "undefined" || typeof config[0] == "string")){
+			if(!this.isProcessor()) throw new Error("not a processor");
+			this.code = config;
+			this.config = new BlockConfig(BlockConfigType.bytearray, []);
+			this.links = [];
+			this.rotation = 0;
+			this.compressLogicConfig();
+		} else {
+			throw new TypeError(`Invalid arguments to Tile constructor ([${Array.from(arguments).join(", ")}])`)
+		}
 	}
 	toString() {
 		return `${this.name}`;

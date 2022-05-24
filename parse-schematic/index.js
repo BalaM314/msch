@@ -2,43 +2,32 @@
  * WIP
  */
 import * as fs from "fs";
-import * as path from "path";
 import { parseArgs } from "./funcs.js";
 import { Schematic } from "./classes/Schematic.js";
+import { Tile } from "./classes/Tile.js";
 function main(argv) {
-    const [parsedArgs, mainArgs] = parseArgs(argv.slice(2));
-    if (!mainArgs[0]) {
-        console.error("Please specify a schematic file to load");
-        return 1;
+    const [parsedArgs, mainArgs] = parseArgs(argv);
+    const mark = `print "Made with https://github.com/BalaM314/msch"`;
+    let schem = new Schematic(3, 3, 1, {
+        name: "Sussy Schematic",
+        description: "Hacked with https://github.com/BalaM314/msch"
+    }, [], [
+        new Tile("copper-wall", 0, 2), new Tile("copper-wall", 1, 2), new Tile("copper-wall", 2, 2),
+        new Tile("micro-processor", 0, 1, [mark]), new Tile("message", 2, 1),
+        new Tile("copper-wall", 0, 0), new Tile("copper-wall", 1, 0), new Tile("copper-wall", 2, 0)
+    ]);
+    schem.getTileAt(0, 1).links.push({
+        name: "messageSussy",
+        x: 0,
+        y: 2
+    });
+    if ("output" in parsedArgs) {
+        let outputPath = parsedArgs["output"].endsWith(".msch") ? parsedArgs["output"] : parsedArgs["output"] + ".msch";
+        fs.writeFileSync(outputPath, schem.write().toBuffer());
+        console.log(`Wrote modified file to ${outputPath}.`);
     }
-    console.log(`Loading schematic ${mainArgs[0]}`);
-    let schem = Schematic.from(fs.readFileSync(mainArgs[0]));
-    console.log(`Loaded schematic ${mainArgs[0]}`);
-    schem.displayTiles();
-    let tile = schem.getTileAt(0, 0);
-    if (tile?.isProcessor()) {
-        let code = tile.code;
-        console.log("Code of proc at 0, 0: ", code);
-        console.log(`Replacing "hello world" with "hi mom"`);
-        tile.code = code.map(line => line.replaceAll("hello world", "hi mom"));
-        console.log("Links:", tile.links);
-        if (tile.links.filter(link => link.x == 2 && link.y == 0).length > 0) {
-            console.log(`Removed existing link to block two tiles right`);
-            tile.links = tile.links.filter(link => link.x != 2 || link.y != 0);
-        }
-        console.log(`Adding link to messageSussy (two tiles right)`);
-        tile.links.push({
-            name: "messageSussy",
-            x: 2,
-            y: 0
-        });
-        let outputPath = path.join(mainArgs[0], "..", "modified-" + mainArgs[0].split(path.sep).at(-1));
-        schem.tags["description"] = "Modified";
-        schem.tags["name"] = schem.tags["name"] + "-modified";
-        if ("write" in parsedArgs) {
-            fs.writeFileSync(outputPath, schem.write().toBuffer());
-            console.log(`Wrote modified file to ${outputPath}`);
-        }
+    else {
+        console.log(`Use the --output flag to specify the location to output the schematic.`);
     }
 }
 try {

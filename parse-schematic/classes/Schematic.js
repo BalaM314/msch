@@ -67,7 +67,7 @@ export class Schematic {
             let config = TypeIO.readObject(data);
             let rotation = data.readInt8();
             if (block && block != "air")
-                tiles.push(new Tile(block, position, config, rotation));
+                tiles.push(new Tile(block, ...Point2.unpack(position), config, rotation));
         }
         return new Schematic(height, width, version, tags, labels, tiles);
     }
@@ -128,9 +128,8 @@ export class Schematic {
         return blockMap;
     }
     static sortTiles(tiles, width, height) {
-        let sortedTiles = new Array(width);
+        let sortedTiles = new Array(width).fill([]).map(() => new Array(height));
         for (let tile of tiles) {
-            sortedTiles[tile.x] ??= new Array(height);
             sortedTiles[tile.x][tile.y] = tile;
         }
         return sortedTiles;

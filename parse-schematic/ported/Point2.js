@@ -14,7 +14,7 @@ export class Point2 {
         return ((x) << 16) | ((y) & 0xFFFF);
     }
     static unpack(point) {
-        return Point2.from(point);
+        return [Point2.x(point), Point2.y(point)];
     }
     static from(point) {
         return new Point2(Point2.x(point), Point2.y(point));
