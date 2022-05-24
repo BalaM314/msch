@@ -1,7 +1,7 @@
 /**Parses command line args. */
 export function parseArgs(
 	args: string[]
-): [parsedArgs: { [index: string]: string }, mainArgs: string[]] {
+): [parsedArgs: { [index: string]: string|undefined }, mainArgs: string[]] {
 	let parsedArgs: {
 		[index: string]: string;
 	} = {};
