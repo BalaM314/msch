@@ -1,7 +1,6 @@
 import { SmartBuffer } from "../ported/SmartBuffer.js";
 import { BlockConfig } from "./BlockConfig.js";
 import * as zlib from "zlib";
-import { toHexCodes } from "../funcs.js";
 import { BlockConfigType } from "../types.js";
 export class Tile {
     constructor(name, x, y, config, rotation) {
@@ -34,11 +33,9 @@ export class Tile {
     decompressLogicConfig() {
         if (!this.isProcessor())
             throw new Error("not a processor");
-        console.debug("Decompressing code: ", toHexCodes(Buffer.from(this.config.value)).join(" "));
         let data = new SmartBuffer({
             buff: zlib.inflateSync(Uint8Array.from(this.config.value))
         });
-        console.debug("Decompressed code: ", toHexCodes(data.toBuffer()).join(" "));
         let version = data.readInt8();
         if (version != 1)
             throw new Error(`Unsupported logic code of version ${version}`);
@@ -70,9 +67,7 @@ export class Tile {
             output.writeInt16BE(link.x);
             output.writeInt16BE(link.y);
         }
-        console.debug("Precompressed code: ", toHexCodes(output.toBuffer()).join(" "));
         let compressedData = zlib.deflateSync(output.toBuffer());
-        console.debug("Compressed code: ", toHexCodes(compressedData).join(" "));
         this.config.value = Array.from(compressedData);
     }
 }

@@ -52,7 +52,6 @@ export class TypeIO {
 				return new BlockConfig(BlockConfigType.buildingbox, Point2.from(buf.readInt32BE()));
 			case 14:
 				let numBytes = buf.readInt32BE();
-				console.debug(`Object has ${numBytes} bytes`);
 				let bytes:number[] = [];
 				for(let i = 0; i < numBytes; i ++){
 					bytes.push(buf.readUInt8());
