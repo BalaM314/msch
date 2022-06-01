@@ -1,24 +1,32 @@
 import { SmartBuffer } from "../ported/SmartBuffer.js";
-import { Point2 } from "../ported/Point2.js";
 import { BlockConfig } from "./BlockConfig.js";
 import * as zlib from "zlib";
-import { BlockConfigType } from "../types.js";
+import { BlockConfigType, Rotation } from "../types.js";
 
+/**
+ * Represents a tile in the schematic.
+ */
 export class Tile {
+	/**The code if this tile, if it is a processor. */
 	code?: string[];
+	/**The links of this tile, if it is a processor. */
 	links?: {
 		name: string;
 		x: number;
 		y: number;
 	}[];
+	/**The config of this tile. */
 	config: BlockConfig;
-	rotation: number;
+	/**The rotation of this tile. */
+	rotation: Rotation;
+	/**All block ids that have logic code. */
 	static logicBlocks: string[] = ["micro-processor", "logic-processor", "hyper-processor", "world-processor"];
+	/**Current logic version. */
 	static logicVersion: number = 1;
 	constructor(name: string, x: number, y: number, code: string[]);
-	constructor(name: string, x: number, y: number, config?: BlockConfig, rotation?: number);
+	constructor(name: string, x: number, y: number, config?: BlockConfig, rotation?: Rotation);
 
-	constructor(public name:string, public x:number, public y:number, config?: BlockConfig|string[], rotation?:number) {
+	constructor(public name:string, public x:number, public y:number, config?: BlockConfig|string[], rotation?:Rotation) {
 		if(config instanceof BlockConfig || config == undefined){
 			this.config = (config as BlockConfig) ?? BlockConfig.null;
 			this.rotation = rotation ?? 0;
@@ -39,6 +47,7 @@ export class Tile {
 	isProcessor(){
 		return Tile.logicBlocks.includes(this.name);
 	}
+	/**Decompresses the config into links and code. */
 	decompressLogicConfig(){
 		if(!this.isProcessor()) throw new Error("not a processor");
 		let data = new SmartBuffer({
@@ -59,6 +68,7 @@ export class Tile {
 			});
 		}
 	}
+	/**Compresses links and code for serialization. */
 	compressLogicConfig(){
 		if(!this.isProcessor()) throw new Error("not a processor");
 		if(!this.links || !this.code) throw new Error("Data not decompressed");
@@ -79,7 +89,8 @@ export class Tile {
 		let compressedData = zlib.deflateSync(output.toBuffer());
 		this.config.value = Array.from(compressedData);
 	}
-	formatConfig(): any {
+	/**Used for displaying config. */
+	formatConfig() {
 		if(this.isProcessor()){
 			return {
 				code: this.code,

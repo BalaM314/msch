@@ -6,4 +6,5 @@ export class BlockConfig {
         this.value = value;
     }
 }
+/**No config. */
 BlockConfig.null = new BlockConfig(BlockConfigType.null, null);

@@ -2,6 +2,9 @@ import { SmartBuffer } from "../ported/SmartBuffer.js";
 import { BlockConfig } from "./BlockConfig.js";
 import * as zlib from "zlib";
 import { BlockConfigType } from "../types.js";
+/**
+ * Represents a tile in the schematic.
+ */
 export class Tile {
     constructor(name, x, y, config, rotation) {
         this.name = name;
@@ -30,6 +33,7 @@ export class Tile {
     isProcessor() {
         return Tile.logicBlocks.includes(this.name);
     }
+    /**Decompresses the config into links and code. */
     decompressLogicConfig() {
         if (!this.isProcessor())
             throw new Error("not a processor");
@@ -51,6 +55,7 @@ export class Tile {
             });
         }
     }
+    /**Compresses links and code for serialization. */
     compressLogicConfig() {
         if (!this.isProcessor())
             throw new Error("not a processor");
@@ -70,6 +75,7 @@ export class Tile {
         let compressedData = zlib.deflateSync(output.toBuffer());
         this.config.value = Array.from(compressedData);
     }
+    /**Used for displaying config. */
     formatConfig() {
         if (this.isProcessor()) {
             return {
@@ -81,5 +87,7 @@ export class Tile {
         }
     }
 }
+/**All block ids that have logic code. */
 Tile.logicBlocks = ["micro-processor", "logic-processor", "hyper-processor", "world-processor"];
+/**Current logic version. */
 Tile.logicVersion = 1;

@@ -57,4 +57,3 @@ export var Item;
     Item[Item["blast_compound"] = 14] = "blast_compound";
     Item[Item["pyratite"] = 15] = "pyratite";
 })(Item || (Item = {}));
-;

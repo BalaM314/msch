@@ -57,27 +57,6 @@ export enum Item {
 	pyratite = 15,
 }
 export type BlockConfigValue = null | number | bigint | string | [type: number, id: number] | number[] | Point2 | Point2[] | boolean;
-export interface SchematicData {
-	info: {
-		name: string;
-		description?: string;
-		authors: string[];
-	}
-	tiles: {
-		grid: string[][];
-		configs: {
-			[name: string]: SchematicConfig;
-		};
-		programs: {
-			[name: string]: string[] | string;//if string then interpret it as a path
-		}
-	}
-	consts: {
-		[name: string]: string;
-	}
-};
-export interface SchematicConfig {
-	id: string;
-	links?: string[];
-	config?: string | boolean;//this may or may not work
-}
+
+/**0 is right, 1 is up, 2 is left, 3 is down. */
+export type Rotation = 0 | 1 | 2 | 3;

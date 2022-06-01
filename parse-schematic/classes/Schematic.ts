@@ -3,10 +3,12 @@ import { Tile } from "../classes/Tile.js";
 import { TypeIO } from "../ported/TypeIO.js";
 import { Point2 } from "../ported/Point2.js";
 import * as zlib from "zlib";
-import { BlockConfigType } from "../types.js";
+import { BlockConfigType, Rotation } from "../types.js";
 
 export class Schematic {
+	/**Magic header bytes that must be present at the start of a schematic file. */
 	static headerBytes: number[] = ['m', 's', 'c', 'h'].map(char => char.charCodeAt(0));
+	/**Blank schematic. */
 	static blank:Schematic = new Schematic(0,0,1,{},[],[]);
 	/**Tiles arranged in a grid. */
 	tiles: (Tile | null)[][] = [];
@@ -24,6 +26,11 @@ export class Schematic {
 		this.loadConfigs();
 	}
 
+	/**
+	 * Creates a new Schematic from serialized data. 
+	 * @param { Buffer } inputData A buffer containing the data.
+	 * @returns { Schematic } the loaded schematic.
+	 */
 	static from(inputData: Buffer) {
 		let rawData = new SmartBuffer({
 			buff: inputData
@@ -66,12 +73,13 @@ export class Schematic {
 			let block = blocks.get(id)!;
 			let position = data.readInt32BE();
 			let config = TypeIO.readObject(data);
-			let rotation = data.readInt8();
+			let rotation = data.readInt8() as Rotation;
 			if (block && block != "air") tiles.push(new Tile(block, ...Point2.unpack(position), config, rotation));
 		}
 		return new Schematic(height, width, version, tags, labels, tiles);
 	}
 
+	/**Loads decompressable configs from compressed data. */
 	loadConfigs(){
 		for(let column of this.tiles){
 			for(let tile of column){
@@ -82,6 +90,7 @@ export class Schematic {
 		}
 	}
 
+	/**Compresses configs to be saved. */
 	saveConfigs(){
 		for(let column of this.tiles){
 			for(let tile of column){
@@ -92,6 +101,9 @@ export class Schematic {
 		}
 	}
 	
+	/**Serializes this schematic.
+	 * @returns { SmartBuffer } The output data.
+	 */
 	write(): SmartBuffer {
 		this.saveConfigs();
 		let output = new SmartBuffer();
@@ -131,13 +143,24 @@ export class Schematic {
 
 		return output;
 	}
+	/**
+	 * Generates the block map needed to save tiles.
+	 * @param { Tile[] } unsortedTiles List of Tiles.
+	 * @returns { Set<string> }
+	 */
 	static getBlockMap(unsortedTiles: Tile[]) {
 		let blockMap = new Set<string>();
 		unsortedTiles.forEach(tile => blockMap.add(tile.name));
 		return blockMap;
 	}
 
-
+	/**
+	 * Sorts a list of tiles into a grid.
+	 * @param { Tile[] } tiles List of tiles to sort
+	 * @param { number } width Width that the resulting 2D array should be
+	 * @param { number } height Height that the resulting 2D array should have
+	 * @returns { (Tile|null)[][] } Tiles sorted into a grid.
+	 */
 	static sortTiles(tiles: Tile[], width: number, height: number): (Tile | null)[][] {
 		let sortedTiles = new Array<Tile[]>(width).fill([]).map(() => new Array<Tile|null>(height).fill(null));
 		for (let tile of tiles) {
@@ -145,6 +168,11 @@ export class Schematic {
 		}
 		return sortedTiles;
 	}
+	/**
+	 * 
+	 * @param { (Tile|null)[][] } tiles A grid of tiles to unsort.
+	 * @returns { Tile[] } List of unsorted tiles.
+	 */
 	static unsortTiles(tiles: (Tile | null)[][]): Tile[] {
 		let unsortedTiles: Tile[] = [];
 		for (let column of tiles) {
@@ -156,6 +184,10 @@ export class Schematic {
 		return unsortedTiles;
 	}
 
+	/**
+	 * Display a schematic to console.
+	 * @param verbose Whether to also print block configs. Warning, may spam console.
+	 */
 	display(verbose: boolean) {
 		let rotatedTiles:string[][] = new Array<string[]>(this.width).fill([]).map(() => new Array<string>(this.height + 1).fill(''));
 		this.tiles.forEach((row, y) => {
@@ -178,11 +210,24 @@ export class Schematic {
 		}
 	}
 
-
+	/**
+	 * Gets a tile.
+	 * @param { number } x 
+	 * @param { number } y 
+	 * @returns { Tile | null } The tile found, or null.
+	 */
 	getTileAt(x: number, y: number): Tile | null {
 		return this.tiles[x][y];
 	}
+	/**
+	 * Sets a tile.
+	 * @param { number } x 
+	 * @param { number } y 
+	 * @param { Tile } tile The tile to set.
+	 */
 	setTileAt(x: number, y: number, tile: Tile) {
+		tile.x = x;
+		tile.y = y;
 		this.tiles[x][y] = tile;
 	}
 }
