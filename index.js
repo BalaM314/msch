@@ -3,11 +3,9 @@
  */
 import * as fs from "fs";
 import { parseArgs } from "./funcs.js";
-import { Schematic } from "./classes/Schematic.js";
+import { Schematic } from "./parse-schematic/classes/Schematic.js";
 function main(argv) {
     const [parsedArgs, mainArgs] = parseArgs(argv);
-    const processorCode = [`print "Made with https://github.com/BalaM314/msch"`, `printflush messageSussy`];
-    let wallType = "copper-wall";
     if ("help" in parsedArgs || Object.keys(parsedArgs).length == 0) {
         console.log(`MSCH: WIP mindustry schematic parser.
 

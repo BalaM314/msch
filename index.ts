@@ -3,20 +3,18 @@
  */
 import * as fs from "fs";
 import { parseArgs } from "./funcs.js";
-import { Schematic } from "./classes/Schematic.js";
-import { Tile } from "./classes/Tile.js";
-import { Point2 } from "./ported/Point2.js";
-import { TypeIO } from "./ported/TypeIO.js";
-import { BlockConfig } from "./classes/BlockConfig.js";
-import { BlockConfigType } from "./types.js";
+import { Schematic } from "./parse-schematic/classes/Schematic.js";
+import { Tile } from "./parse-schematic/classes/Tile.js";
+import { Point2 } from "./parse-schematic/ported/Point2.js";
+import { TypeIO } from "./parse-schematic/ported/TypeIO.js";
+import { BlockConfig } from "./parse-schematic/classes/BlockConfig.js";
+import { BlockConfigType } from "./parse-schematic/types.js";
 
 
 
 
 function main(argv: string[]) {
 	const [parsedArgs, mainArgs] = parseArgs(argv);
-	const processorCode = [`print "Made with https://github.com/BalaM314/msch"`, `printflush messageSussy`];
-	let wallType = "copper-wall";
 	if("help" in parsedArgs || Object.keys(parsedArgs).length == 0){
 		console.log(
 `MSCH: WIP mindustry schematic parser.

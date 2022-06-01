@@ -2,7 +2,6 @@ import { SmartBuffer } from "../ported/SmartBuffer.js";
 import { Point2 } from "../ported/Point2.js";
 import { BlockConfig } from "./BlockConfig.js";
 import * as zlib from "zlib";
-import { toHexCodes } from "../funcs.js";
 import { BlockConfigType } from "../types.js";
 
 export class Tile {
