@@ -155,7 +155,14 @@ export class Schematic {
 	}
 
 	displayTiles() {
-		console.table(this.tiles.map(col => col.map(tile => tile ? tile.toString() : "")).reverse());
+		let rotatedTiles:string[][] = new Array<string[]>(this.width).fill([]).map(() => new Array<string>(this.height + 1).fill(''));
+		this.tiles.forEach((row, y) => {
+			row.forEach((tile, x) => {
+				rotatedTiles[this.width - 1 - x]["y" as any] = x as any;//haha any go brrrrr i am totally going to regret this
+				rotatedTiles[this.width - 1 - x][y] = tile ? tile.toString() : ""
+			});
+		});
+		console.table(rotatedTiles);
 	}
 
 

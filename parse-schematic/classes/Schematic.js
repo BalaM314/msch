@@ -136,7 +136,14 @@ export class Schematic {
         return unsortedTiles;
     }
     displayTiles() {
-        console.table(this.tiles.map(col => col.map(tile => tile ? tile.toString() : "")).reverse());
+        let rotatedTiles = new Array(this.width).fill([]).map(() => new Array(this.height + 1).fill(''));
+        this.tiles.forEach((row, y) => {
+            row.forEach((tile, x) => {
+                rotatedTiles[this.width - 1 - x]["y"] = x; //haha any go brrrrr i am totally going to regret this
+                rotatedTiles[this.width - 1 - x][y] = tile ? tile.toString() : "";
+            });
+        });
+        console.table(rotatedTiles);
     }
     getTileAt(x, y) {
         return this.tiles[x][y];
