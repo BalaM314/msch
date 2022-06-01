@@ -14,7 +14,7 @@ export class Tile {
 	}[];
 	config: BlockConfig;
 	rotation: number;
-	static logicBlocks: string[] = ["micro-processor", "logic-processor", "hyper-processor"];
+	static logicBlocks: string[] = ["micro-processor", "logic-processor", "hyper-processor", "world-processor"];
 	static logicVersion: number = 1;
 	constructor(name: string, x: number, y: number, code: string[]);
 	constructor(name: string, x: number, y: number, config?: BlockConfig, rotation?: number);

@@ -4,30 +4,22 @@
 import * as fs from "fs";
 import { parseArgs } from "./funcs.js";
 import { Schematic } from "./classes/Schematic.js";
-import { Tile } from "./classes/Tile.js";
 function main(argv) {
     const [parsedArgs, mainArgs] = parseArgs(argv);
     const processorCode = [`print "Made with https://github.com/BalaM314/msch"`, `printflush messageSussy`];
     let wallType = "copper-wall";
     if ("help" in parsedArgs || Object.keys(parsedArgs).length == 0) {
-        console.log(`MSCH: The best tool to make 3x3 Mindustry schematics consisting of 6 walls and a processor with a sussy link name.
+        console.log(`MSCH: WIP mindustry schematic parser.
 
-Usage: msch [--help] [--output <output>] [--wall <wall>] [--name <name>]
-	--help		Displays this help message and exits.
-	--output	The path to the output file.
-	--wall		Specifies the type of wall to use.
-	--name		Specifies the name of the schematic.`);
+Usage: msch [--help] [--output <output>] [--read <filename>] [--interactive] [--verbose]
+	--read			The path to the file to load as a schematic.
+	--verbose		Whether to be verbose when displaying the loaded schematic. WARNING: may spam console.
+	--help			Displays this help message and exits.
+	--output		The path to the output file.
+	--interactive	Starts a shell, allowing you to edit the schematic by typing JS code.`);
         return 0;
     }
-    let schem = new Schematic(0, 0, 1, {}, [], []);
-    if (parsedArgs["wall"]) {
-        if (["copper", "titanium", "thorium", "plastanium", "phase", "surge"].includes(parsedArgs["wall"])) {
-            wallType = parsedArgs["wall"] + "-wall";
-        }
-        else {
-            console.warn(`${parsedArgs["wall"]} is not a valid wall type`);
-        }
-    }
+    let schem = Schematic.blank;
     if (parsedArgs["read"]) {
         try {
             schem = Schematic.from(fs.readFileSync(parsedArgs["read"]));
@@ -36,44 +28,62 @@ Usage: msch [--help] [--output <output>] [--wall <wall>] [--name <name>]
             console.error("Invalid schematic.", err);
             return 1;
         }
-        schem.display();
+        schem.display("verbose" in parsedArgs);
         schem.tags["description"] = "Made with https://github.com/BalaM314/msch";
     }
-    else if ("glitch" in parsedArgs) {
-        schem = new Schematic(10, 10, 1, {
-            name: parsedArgs["name"] ?? "Cursed Router Reactor",
-            description: "Hacked with [REDACTED]"
-        }, [], [
-            new Tile("surge-wall", 0, 0), new Tile("phase-wall", 9, 9),
-            new Tile("thruster", 4, 1, undefined, 3), new Tile("thruster", 1, 4, undefined, 2), new Tile("thruster", 7, 4, undefined, 0), new Tile("thruster", 4, 7, undefined, 1),
-            new Tile("impact-reactor", 4, 4),
-            new Tile("distributor", 6, 6), new Tile("distributor", 6, 2), new Tile("distributor", 2, 6), new Tile("distributor", 2, 2),
-        ]);
-        console.log("Created cursed schematic.");
-        schem.display();
-    }
-    else {
-        schem = new Schematic(3, 3, 1, {
-            name: parsedArgs["name"] ?? "Sussy Schematic",
-            description: "Hacked with https://github.com/BalaM314/msch"
-        }, [], [
-            new Tile(wallType, 0, 2), new Tile(wallType, 1, 2), new Tile(wallType, 2, 2),
-            new Tile("micro-processor", 0, 1, processorCode), new Tile("message", 2, 1),
-            new Tile(wallType, 0, 0), new Tile(wallType, 1, 0), new Tile(wallType, 2, 0)
-        ]);
-        schem.getTileAt(0, 1).links.push({
-            name: "messageSussy",
-            x: 2,
-            y: 0
+    if ("interactive" in parsedArgs) {
+        console.log("Interactive JavaScript shell, type .exit or Ctrl+C to exit.");
+        console.log("The schematic variable is \`schem\`.");
+        let help = "Type .help for help.";
+        process.stdout.write("\n> ");
+        process.stdin.on("data", (data) => {
+            let line = data.toString().split(/\r?\n/g)[0];
+            if (line.startsWith(".")) {
+                if (line == ".exit") {
+                    process.exit(0);
+                }
+                else if (line.startsWith(".output")) {
+                    if (line.split(".output ")[1]) {
+                        let outputPath = line.split(".output")[1]?.endsWith(".msch") ? line.split(".output")[1] : line.split(".output")[1] + ".msch";
+                        fs.writeFileSync(outputPath, schem.write().toBuffer());
+                        console.log(`Wrote modified file to ${outputPath}.`);
+                    }
+                    else {
+                        console.log(`Usage: .output <filename>`);
+                    }
+                }
+                else if (line.startsWith(".name")) {
+                    if (line.split(".name ")[1]) {
+                        schem.tags["name"] = line.split(".name ")[1];
+                        console.log(`Set name to ${line.split(".name ")[1]}`);
+                    }
+                    else {
+                        console.log(`Usage: .name <name>`);
+                    }
+                }
+                else if (line.startsWith(".description")) {
+                    if (line.split(".description ")[1]) {
+                        schem.tags["description"] = line.split(".description ")[1];
+                        console.log(`Set description to ${line.split(".description ")[1]}`);
+                    }
+                    else {
+                        console.log(`Usage: .description <description>`);
+                    }
+                }
+                else {
+                    console.log("Invalid command.");
+                }
+            }
+            else {
+                try {
+                    console.log(eval(line)); //OH NO ITS NOT SAFE
+                }
+                catch (err) {
+                    console.error(err);
+                }
+            }
+            process.stdout.write("\n> ");
         });
-    }
-    if ("output" in parsedArgs) {
-        let outputPath = parsedArgs["output"]?.endsWith(".msch") ? parsedArgs["output"] : parsedArgs["output"] + ".msch";
-        fs.writeFileSync(outputPath, schem.write().toBuffer());
-        console.log(`Wrote modified file to ${outputPath}.\nNote that you need to place the message first!`);
-    }
-    else {
-        console.log(`Use the --output flag to specify the location to output the schematic.`);
     }
 }
 try {

@@ -81,5 +81,5 @@ export class Tile {
         }
     }
 }
-Tile.logicBlocks = ["micro-processor", "logic-processor", "hyper-processor"];
+Tile.logicBlocks = ["micro-processor", "logic-processor", "hyper-processor", "world-processor"];
 Tile.logicVersion = 1;

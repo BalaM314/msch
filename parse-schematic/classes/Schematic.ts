@@ -7,6 +7,7 @@ import { BlockConfigType } from "../types.js";
 
 export class Schematic {
 	static headerBytes: number[] = ['m', 's', 'c', 'h'].map(char => char.charCodeAt(0));
+	static blank:Schematic = new Schematic(0,0,1,{},[],[]);
 	/**Tiles arranged in a grid. */
 	tiles: (Tile | null)[][] = [];
 	constructor(
@@ -160,11 +161,11 @@ export class Schematic {
 		return unsortedTiles;
 	}
 
-	display() {
+	display(verbose: boolean) {
 		let rotatedTiles:string[][] = new Array<string[]>(this.width).fill([]).map(() => new Array<string>(this.height + 1).fill(''));
 		this.tiles.forEach((row, y) => {
 			row.forEach((tile, x) => {
-				rotatedTiles[this.width - 1 - x]["y" as any] = x as any;//haha any go brrrrr i am totally going to regret this
+				rotatedTiles[this.width - 1 - x]["y" as any] = x as any;//haha any go brrrrr... i am totally going to regret this
 				rotatedTiles[this.width - 1 - x][y] = tile ? tile.toString() : ""
 			});
 		});
@@ -174,10 +175,12 @@ export class Schematic {
 		console.table(rotatedTiles);
 		console.log("Tags:");
 		console.log(this.tags);
-		console.log("Configs:");
-		Schematic.unsortTiles(this.tiles).forEach(tile =>
-			tile.config.type == BlockConfigType.null ? 0 : console.log(tile.name, tile.x, tile.y, tile.formatConfig())
-		);
+		if(verbose){
+			console.log("Configs:");
+			Schematic.unsortTiles(this.tiles).forEach(tile =>
+				tile.config.type == BlockConfigType.null ? 0 : console.log(tile.name, tile.x, tile.y, tile.formatConfig())
+			);
+		}
 	}
 
 

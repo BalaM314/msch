@@ -142,11 +142,11 @@ export class Schematic {
         }
         return unsortedTiles;
     }
-    display() {
+    display(verbose) {
         let rotatedTiles = new Array(this.width).fill([]).map(() => new Array(this.height + 1).fill(''));
         this.tiles.forEach((row, y) => {
             row.forEach((tile, x) => {
-                rotatedTiles[this.width - 1 - x]["y"] = x; //haha any go brrrrr i am totally going to regret this
+                rotatedTiles[this.width - 1 - x]["y"] = x; //haha any go brrrrr... i am totally going to regret this
                 rotatedTiles[this.width - 1 - x][y] = tile ? tile.toString() : "";
             });
         });
@@ -156,8 +156,10 @@ export class Schematic {
         console.table(rotatedTiles);
         console.log("Tags:");
         console.log(this.tags);
-        console.log("Configs:");
-        Schematic.unsortTiles(this.tiles).forEach(tile => tile.config.type == BlockConfigType.null ? 0 : console.log(tile.name, tile.x, tile.y, tile.formatConfig()));
+        if (verbose) {
+            console.log("Configs:");
+            Schematic.unsortTiles(this.tiles).forEach(tile => tile.config.type == BlockConfigType.null ? 0 : console.log(tile.name, tile.x, tile.y, tile.formatConfig()));
+        }
     }
     getTileAt(x, y) {
         return this.tiles[x][y];
@@ -167,3 +169,4 @@ export class Schematic {
     }
 }
 Schematic.headerBytes = ['m', 's', 'c', 'h'].map(char => char.charCodeAt(0));
+Schematic.blank = new Schematic(0, 0, 1, {}, [], []);
