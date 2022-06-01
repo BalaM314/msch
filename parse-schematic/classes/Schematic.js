@@ -135,7 +135,7 @@ export class Schematic {
         }
         return unsortedTiles;
     }
-    displayTiles() {
+    display() {
         let rotatedTiles = new Array(this.width).fill([]).map(() => new Array(this.height + 1).fill(''));
         this.tiles.forEach((row, y) => {
             row.forEach((tile, x) => {
@@ -143,7 +143,11 @@ export class Schematic {
                 rotatedTiles[this.width - 1 - x][y] = tile ? tile.toString() : "";
             });
         });
+        console.log(`Size: ${this.width}x${this.height}`);
+        console.log("Tiles:");
         console.table(rotatedTiles);
+        console.log("Configs:");
+        Schematic.unsortTiles(this.tiles).forEach(tile => console.log(tile.name, tile.x, tile.y, tile.config));
     }
     getTileAt(x, y) {
         return this.tiles[x][y];

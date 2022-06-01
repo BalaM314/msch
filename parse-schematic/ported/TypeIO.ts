@@ -104,6 +104,8 @@ export class TypeIO {
 					buf.writeInt32BE(point.pack());
 				}
 				break;
+			case BlockConfigType.boolean:
+				buf.writeUInt8(object.value as number);
 			case BlockConfigType.bytearray:
 				buf.writeInt32BE((object.value as number[]).length);
 				for (let byte of (object.value as number[])) {

@@ -89,7 +89,7 @@ export class Schematic {
 			}
 		}
 	}
-
+	
 	write(): SmartBuffer {
 		this.saveConfigs();
 		let output = new SmartBuffer();
@@ -154,7 +154,7 @@ export class Schematic {
 		return unsortedTiles;
 	}
 
-	displayTiles() {
+	display() {
 		let rotatedTiles:string[][] = new Array<string[]>(this.width).fill([]).map(() => new Array<string>(this.height + 1).fill(''));
 		this.tiles.forEach((row, y) => {
 			row.forEach((tile, x) => {
@@ -162,7 +162,13 @@ export class Schematic {
 				rotatedTiles[this.width - 1 - x][y] = tile ? tile.toString() : ""
 			});
 		});
+		console.log(`Size: ${this.width}x${this.height}`);
+		console.log("Tiles:");
 		console.table(rotatedTiles);
+		console.log("Configs:");
+		Schematic.unsortTiles(this.tiles).forEach(tile =>
+			console.log(tile.name, tile.x, tile.y, tile.config)
+		);
 	}
 
 
