@@ -13,13 +13,13 @@ export function parseArgs(args) {
             break;
         if (arg.startsWith("--")) {
             if (args[0]?.startsWith("-"))
-                parsedArgs[arg] = "null";
+                parsedArgs[arg.substring(2)] = "null";
             else
                 parsedArgs[arg.substring(2)] = args.splice(0, 1)[0] ?? "null";
         }
         else if (arg.startsWith("-")) {
             if (args[0]?.startsWith("-"))
-                parsedArgs[arg] = "null";
+                parsedArgs[arg.substring(2)] = "null";
             else
                 parsedArgs[arg.substring(1)] = args.splice(0, 1)[0] ?? "null";
         }
