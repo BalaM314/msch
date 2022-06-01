@@ -101,7 +101,7 @@ export class Schematic {
 		compressableData.writeUInt16BE(this.width);
 		compressableData.writeUInt16BE(this.height);
 
-		//TODO actually write the tags instead of just a null byte
+		
 		compressableData.writeUInt8(Object.entries(this.tags).length);
 		for(let [key, value] of Object.entries(this.tags)){
 			compressableData.writeUTF8(key);
@@ -137,7 +137,7 @@ export class Schematic {
 
 
 	static sortTiles(tiles: Tile[], width: number, height: number): (Tile | null)[][] {
-		let sortedTiles = new Array<Tile[]>(width).fill([]).map(() => new Array<Tile>(height));
+		let sortedTiles = new Array<Tile[]>(width).fill([]).map(() => new Array<Tile|null>(height).fill(null));
 		for (let tile of tiles) {
 			sortedTiles[tile.x][tile.y] = tile;
 		}
@@ -155,7 +155,7 @@ export class Schematic {
 	}
 
 	displayTiles() {
-		console.table(this.tiles.map(col => col.map(tile => tile?.toString()).reverse()));
+		console.table(this.tiles.map(col => col.map(tile => tile ? tile.toString() : "")).reverse());
 	}
 
 
