@@ -1,9 +1,8 @@
 {
   "name": "msch",
   "version": "1.0.0",
-  "description": "Mindustry schematic buildtool.",
+  "description": "A library to parse Mindustry schematic files.",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -13,7 +12,8 @@
   },
   "keywords": [
     "mindustry",
-    "schematic"
+    "schematic",
+    "parse-schematic"
   ],
   "author": "BalaM314",
   "license": "GPL-3.0-or-later",
@@ -21,9 +21,6 @@
     "url": "https://github.com/BalaM314/msch/issues"
   },
   "homepage": "https://github.com/BalaM314/msch#readme",
-  "devDependencies": {
-    "@types/node": "^17.0.33"
-  },
   "dependencies": {
     "smart-buffer": "^4.2.0"
   }

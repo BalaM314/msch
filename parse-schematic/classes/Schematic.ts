@@ -42,13 +42,8 @@ export class Schematic {
 		
 		let tagcount = data.readUInt8();
 		let tags: typeof Schematic.prototype.tags = {};
-		try {
-			for (let i = 0; i < tagcount; i++) {
-				tags[data.readUTF8()] = data.readUTF8();
-			}
-		} catch(err){
-			console.error("Debug information:", tags);
-			throw err;
+		for (let i = 0; i < tagcount; i++) {
+			tags[data.readUTF8()] = data.readUTF8();
 		}
 		let labels: string[] = [];
 		try {

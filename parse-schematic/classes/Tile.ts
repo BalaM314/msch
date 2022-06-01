@@ -20,7 +20,7 @@ export class Tile {
 
 	constructor(public name:string, public x:number, public y:number, config?: BlockConfig|string[], rotation?:number) {
 		if(config instanceof BlockConfig || config == undefined){
-			this.config = config ?? BlockConfig.null;
+			this.config = (config as BlockConfig) ?? BlockConfig.null;
 			this.rotation = rotation ?? 0;
 		} else if(config instanceof Array && (typeof config[0] == "undefined" || typeof config[0] == "string")){
 			if(!this.isProcessor()) throw new Error("not a processor");
