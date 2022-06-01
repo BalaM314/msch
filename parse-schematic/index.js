@@ -19,6 +19,7 @@ Usage: msch [--help] [--output <output>] [--wall <wall>] [--name <name>]
 	--name		Specifies the name of the schematic.`);
         return 0;
     }
+    let schem = new Schematic(0, 0, 1, {}, [], []);
     if (parsedArgs["wall"]) {
         if (["copper", "titanium", "thorium", "plastanium", "phase", "surge"].includes(parsedArgs["wall"])) {
             wallType = parsedArgs["wall"] + "-wall";
@@ -27,19 +28,45 @@ Usage: msch [--help] [--output <output>] [--wall <wall>] [--name <name>]
             console.warn(`${parsedArgs["wall"]} is not a valid wall type`);
         }
     }
-    let schem = new Schematic(3, 3, 1, {
-        name: parsedArgs["name"] ?? "Sussy Schematic",
-        description: "Hacked with https://github.com/BalaM314/msch"
-    }, [], [
-        new Tile(wallType, 0, 2), new Tile(wallType, 1, 2), new Tile(wallType, 2, 2),
-        new Tile("micro-processor", 0, 1, processorCode), new Tile("message", 2, 1),
-        new Tile(wallType, 0, 0), new Tile(wallType, 1, 0), new Tile(wallType, 2, 0)
-    ]);
-    schem.getTileAt(0, 1).links.push({
-        name: "messageSussy",
-        x: 2,
-        y: 0
-    });
+    if (parsedArgs["read"]) {
+        try {
+            schem = Schematic.from(fs.readFileSync(parsedArgs["read"]));
+        }
+        catch (err) {
+            console.error("Invalid schematic.", err);
+            return 1;
+        }
+        schem.display();
+        schem.tags["description"] = "Made with https://github.com/BalaM314/msch";
+    }
+    else if ("glitch" in parsedArgs) {
+        schem = new Schematic(10, 10, 1, {
+            name: parsedArgs["name"] ?? "Cursed Router Reactor",
+            description: "Hacked with [REDACTED]"
+        }, [], [
+            new Tile("surge-wall", 0, 0), new Tile("phase-wall", 9, 9),
+            new Tile("thruster", 4, 1, undefined, 3), new Tile("thruster", 1, 4, undefined, 2), new Tile("thruster", 7, 4, undefined, 0), new Tile("thruster", 4, 7, undefined, 1),
+            new Tile("impact-reactor", 4, 4),
+            new Tile("distributor", 6, 6), new Tile("distributor", 6, 2), new Tile("distributor", 2, 6), new Tile("distributor", 2, 2),
+        ]);
+        console.log("Created cursed schematic.");
+        schem.display();
+    }
+    else {
+        schem = new Schematic(3, 3, 1, {
+            name: parsedArgs["name"] ?? "Sussy Schematic",
+            description: "Hacked with https://github.com/BalaM314/msch"
+        }, [], [
+            new Tile(wallType, 0, 2), new Tile(wallType, 1, 2), new Tile(wallType, 2, 2),
+            new Tile("micro-processor", 0, 1, processorCode), new Tile("message", 2, 1),
+            new Tile(wallType, 0, 0), new Tile(wallType, 1, 0), new Tile(wallType, 2, 0)
+        ]);
+        schem.getTileAt(0, 1).links.push({
+            name: "messageSussy",
+            x: 2,
+            y: 0
+        });
+    }
     if ("output" in parsedArgs) {
         let outputPath = parsedArgs["output"]?.endsWith(".msch") ? parsedArgs["output"] : parsedArgs["output"] + ".msch";
         fs.writeFileSync(outputPath, schem.write().toBuffer());

@@ -7,13 +7,11 @@ export class SmartBuffer extends _SmartBuffer {
 		if (byte != 0) throw new Error(`Expected null byte, got ${byte.toString(16)}`);
 	}
 	readUTF8() {
-		this.readNullByte();
-		let size = this.readUInt8();
+		let size = this.readUInt16BE();
 		return this.readString(size);
 	}
 	writeUTF8(str: string) {
-		this.writeUInt8(0);
-		this.writeUInt8(str.length);
+		this.writeUInt16BE(str.length);
 		this.writeString(str);
 	}
 }

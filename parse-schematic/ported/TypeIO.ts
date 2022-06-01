@@ -9,7 +9,7 @@ export class TypeIO {
 	 * Only works with BlockConfigs instead of Objects.
 	 * This was nescessary because in Java you can see if null was meant to be a string, but not in JS.*/
 	static readObject(buf: SmartBuffer):BlockConfig {
-		let type = buf.readInt8();
+		let type = buf.readUInt8();
 		switch (type) {
 			case 0:
 				return new BlockConfig(BlockConfigType.null, null);
@@ -31,7 +31,8 @@ export class TypeIO {
 				return new BlockConfig(BlockConfigType.content, [buf.readInt8(), buf.readInt16BE()]);
 			case 6:
 				let numbers:number[] = [];
-				for(let i = 0; i < buf.readInt16BE(); i ++){
+				let numInts = buf.readInt16BE();
+				for(let i = 0; i < numInts; i ++){
 					numbers.push(buf.readInt32BE());
 				}
 				return new BlockConfig(BlockConfigType.content, numbers);
@@ -39,7 +40,8 @@ export class TypeIO {
 				return new BlockConfig(BlockConfigType.point, new Point2(buf.readInt32BE(), buf.readInt32BE()));
 			case 8:
 				let points:Point2[] = [];
-				for(let i = 0; i < buf.readInt8(); i ++){
+				let numPoints = buf.readInt8();
+				for(let i = 0; i < numPoints; i ++){
 					points.push(Point2.from(buf.readInt32BE()));
 				}
 				return new BlockConfig(BlockConfigType.pointarray, points);
@@ -106,6 +108,7 @@ export class TypeIO {
 				break;
 			case BlockConfigType.boolean:
 				buf.writeUInt8(object.value as number);
+				break;
 			case BlockConfigType.bytearray:
 				buf.writeInt32BE((object.value as number[]).length);
 				for (let byte of (object.value as number[])) {

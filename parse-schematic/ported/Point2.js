@@ -4,11 +4,14 @@ export class Point2 {
         this.x = x;
         this.y = y;
     }
+    static castToInt(x) {
+        return x >= (2 ** 15) ? x - (2 ** 16) : x;
+    }
     static x(pos) {
-        return pos >>> 16;
+        return this.castToInt(pos >>> 16);
     }
     static y(pos) {
-        return pos & 0xFFFF;
+        return this.castToInt(pos & 0xFFFF);
     }
     static pack(x, y) {
         return ((x) << 16) | ((y) & 0xFFFF);

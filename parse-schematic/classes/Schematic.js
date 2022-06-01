@@ -3,6 +3,7 @@ import { Tile } from "../classes/Tile.js";
 import { TypeIO } from "../ported/TypeIO.js";
 import { Point2 } from "../ported/Point2.js";
 import * as zlib from "zlib";
+import { BlockConfigType } from "../types.js";
 export class Schematic {
     constructor(height, width, version, tags, labels, tiles) {
         this.height = height;
@@ -33,8 +34,14 @@ export class Schematic {
             throw new Error("Schematic is too large.");
         let tagcount = data.readUInt8();
         let tags = {};
-        for (let i = 0; i < tagcount; i++) {
-            tags[data.readUTF8()] = data.readUTF8();
+        try {
+            for (let i = 0; i < tagcount; i++) {
+                tags[data.readUTF8()] = data.readUTF8();
+            }
+        }
+        catch (err) {
+            console.error("Debug information:", tags);
+            throw err;
         }
         let labels = [];
         try {
@@ -143,11 +150,14 @@ export class Schematic {
                 rotatedTiles[this.width - 1 - x][y] = tile ? tile.toString() : "";
             });
         });
+        rotatedTiles = rotatedTiles.filter(row => row["y"] != null);
         console.log(`Size: ${this.width}x${this.height}`);
         console.log("Tiles:");
         console.table(rotatedTiles);
+        console.log("Tags:");
+        console.log(this.tags);
         console.log("Configs:");
-        Schematic.unsortTiles(this.tiles).forEach(tile => console.log(tile.name, tile.x, tile.y, tile.config));
+        Schematic.unsortTiles(this.tiles).forEach(tile => tile.config.type == BlockConfigType.null ? 0 : console.log(tile.name, tile.x, tile.y, tile.formatConfig()));
     }
     getTileAt(x, y) {
         return this.tiles[x][y];

@@ -80,6 +80,15 @@ export class Tile {
 		let compressedData = zlib.deflateSync(output.toBuffer());
 		this.config.value = Array.from(compressedData);
 	}
+	formatConfig(): any {
+		if(this.isProcessor()){
+			return {
+				code: this.code,
+			}
+		} else {
+			return this.config;
+		}
+	}
 	
 
 }

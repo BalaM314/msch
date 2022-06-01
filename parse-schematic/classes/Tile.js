@@ -70,6 +70,16 @@ export class Tile {
         let compressedData = zlib.deflateSync(output.toBuffer());
         this.config.value = Array.from(compressedData);
     }
+    formatConfig() {
+        if (this.isProcessor()) {
+            return {
+                code: this.code,
+            };
+        }
+        else {
+            return this.config;
+        }
+    }
 }
 Tile.logicBlocks = ["micro-processor", "logic-processor", "hyper-processor"];
 Tile.logicVersion = 1;

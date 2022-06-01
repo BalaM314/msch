@@ -1,11 +1,14 @@
 /**Partial port of arc.math.geom.Point2 */
 export class Point2 {
 	constructor(public x:number, public y:number){}
+	static castToInt(x:number){
+		return x >= (2 ** 15) ? x - (2 ** 16) : x;
+	}
 	static x(pos: number) {
-		return pos >>> 16;
+		return this.castToInt(pos >>> 16);
 	}
 	static y(pos: number) {
-		return pos & 0xFFFF;
+		return this.castToInt(pos & 0xFFFF);
 	}
 	static pack(x: number, y: number) {
 		return ((x) << 16) | ((y) & 0xFFFF);
