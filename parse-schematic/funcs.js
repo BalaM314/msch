@@ -19,7 +19,7 @@ export function parseArgs(args) {
         }
         else if (arg.startsWith("-")) {
             if (args[0]?.startsWith("-"))
-                parsedArgs[arg.substring(2)] = "null";
+                parsedArgs[arg.substring(1)] = "null";
             else
                 parsedArgs[arg.substring(1)] = args.splice(0, 1)[0] ?? "null";
         }
