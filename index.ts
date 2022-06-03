@@ -4,11 +4,11 @@ import { Schematic } from "./classes/Schematic.js";
 import { Tile } from "./classes/Tile.js";
 import { Point2 } from "./ported/Point2.js";
 import { TypeIO } from "./ported/TypeIO.js";
-import { BlockConfigType, BlockConfigValue } from "./types.js";
+import { BlockConfigType, BlockConfigValue, ContentType, Item, Rotation } from "./types.js";
 
 
 export {
 	Schematic, Tile, BlockConfig,
 	Point2, TypeIO, SmartBuffer,
-	BlockConfigType, BlockConfigValue
+	BlockConfigType, BlockConfigValue, ContentType, Item, Rotation
 };
