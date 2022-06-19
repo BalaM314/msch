@@ -142,9 +142,9 @@ export class Schematic {
      * @returns { (Tile|null)[][] } Tiles sorted into a grid.
      */
     static sortTiles(tiles, width, height) {
-        let sortedTiles = new Array(width).fill([]).map(() => new Array(height).fill(null));
+        let sortedTiles = new Array(height).fill([]).map(() => new Array(width).fill(null));
         for (let tile of tiles) {
-            sortedTiles[tile.x][tile.y] = tile;
+            sortedTiles[tile.y][tile.x] = tile;
         }
         return sortedTiles;
     }
@@ -168,17 +168,9 @@ export class Schematic {
      * @param verbose Whether to also print block configs. Warning, may spam console.
      */
     display(verbose) {
-        let rotatedTiles = new Array(this.width).fill([]).map(() => new Array(this.height + 1).fill(''));
-        this.tiles.forEach((row, y) => {
-            row.forEach((tile, x) => {
-                rotatedTiles[this.width - 1 - x]["y"] = x; //haha any go brrrrr... i am totally going to regret this
-                rotatedTiles[this.width - 1 - x][y] = tile ? tile.toString() : "";
-            });
-        });
-        rotatedTiles = rotatedTiles.filter(row => row["y"] != null);
         console.log(`Size: ${this.width}x${this.height}`);
         console.log("Tiles:");
-        console.table(rotatedTiles);
+        console.table(this.tiles.map(row => row.map(tile => tile?.toString() ?? "")).reverse());
         console.log("Tags:");
         console.log(this.tags);
         if (verbose) {
@@ -193,7 +185,7 @@ export class Schematic {
      * @returns { Tile | null } The tile found, or null.
      */
     getTileAt(x, y) {
-        return this.tiles[x][y];
+        return this.tiles[y][x];
     }
     /**
      * Sets a tile.
@@ -204,7 +196,7 @@ export class Schematic {
     setTileAt(x, y, tile) {
         tile.x = x;
         tile.y = y;
-        this.tiles[x][y] = tile;
+        this.tiles[y][x] = tile;
     }
 }
 /**Magic header bytes that must be present at the start of a schematic file. */

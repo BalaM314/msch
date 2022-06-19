@@ -162,9 +162,9 @@ export class Schematic {
 	 * @returns { (Tile|null)[][] } Tiles sorted into a grid.
 	 */
 	static sortTiles(tiles: Tile[], width: number, height: number): (Tile | null)[][] {
-		let sortedTiles = new Array<Tile[]>(width).fill([]).map(() => new Array<Tile|null>(height).fill(null));
+		let sortedTiles = new Array<Tile[]>(height).fill([]).map(() => new Array<Tile|null>(width).fill(null));
 		for (let tile of tiles) {
-			sortedTiles[tile.x][tile.y] = tile;
+			sortedTiles[tile.y][tile.x] = tile;
 		}
 		return sortedTiles;
 	}
@@ -189,17 +189,14 @@ export class Schematic {
 	 * @param verbose Whether to also print block configs. Warning, may spam console.
 	 */
 	display(verbose: boolean) {
-		let rotatedTiles:string[][] = new Array<string[]>(this.width).fill([]).map(() => new Array<string>(this.height + 1).fill(''));
-		this.tiles.forEach((row, y) => {
-			row.forEach((tile, x) => {
-				rotatedTiles[this.width - 1 - x]["y" as any] = x as any;//haha any go brrrrr... i am totally going to regret this
-				rotatedTiles[this.width - 1 - x][y] = tile ? tile.toString() : ""
-			});
-		});
-		rotatedTiles = rotatedTiles.filter(row => row["y" as any] != null);
+
 		console.log(`Size: ${this.width}x${this.height}`);
 		console.log("Tiles:");
-		console.table(rotatedTiles);
+		console.table(
+			this.tiles.map(row => 
+				row.map(tile => tile?.toString() ?? "")
+			).reverse()
+		);
 		console.log("Tags:");
 		console.log(this.tags);
 		if(verbose){
@@ -217,7 +214,7 @@ export class Schematic {
 	 * @returns { Tile | null } The tile found, or null.
 	 */
 	getTileAt(x: number, y: number): Tile | null {
-		return this.tiles[x][y];
+		return this.tiles[y][x];
 	}
 	/**
 	 * Sets a tile.
@@ -228,6 +225,6 @@ export class Schematic {
 	setTileAt(x: number, y: number, tile: Tile) {
 		tile.x = x;
 		tile.y = y;
-		this.tiles[x][y] = tile;
+		this.tiles[y][x] = tile;
 	}
 }
