@@ -1,7 +1,7 @@
 import { SmartBuffer } from "../ported/SmartBuffer.js";
 import { BlockConfig } from "./BlockConfig.js";
 import * as zlib from "zlib";
-import { BlockConfigType, Rotation } from "../types.js";
+import { BlockConfigType, Rotation, Link } from "../types.js";
 
 /**
  * Represents a tile in the schematic.
@@ -10,11 +10,7 @@ export class Tile {
 	/**The code if this tile, if it is a processor. */
 	code?: string[];
 	/**The links of this tile, if it is a processor. */
-	links?: {
-		name: string;
-		x: number;
-		y: number;
-	}[];
+	links?: Link[];
 	/**The config of this tile. */
 	config: BlockConfig;
 	/**The rotation of this tile. */
@@ -76,11 +72,7 @@ export class Tile {
 	}
 	/**Compresses links and code for serialization. */
 	static compressLogicConfig({links, code}: {
-		links: {
-			name: string;
-			x: number;
-			y: number;
-		}[];
+		links: Link[];
 		code: string[];
 	}){
 		let output = new SmartBuffer();
