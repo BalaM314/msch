@@ -60,3 +60,9 @@ export type BlockConfigValue = null | number | bigint | string | [type: number, 
 
 /**0 is right, 1 is up, 2 is left, 3 is down. */
 export type Rotation = 0 | 1 | 2 | 3;
+
+export interface Link {
+	name: string;
+	x: number;
+	y: number;
+}
