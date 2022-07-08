@@ -105,6 +105,7 @@ export class Tile {
 		if(this.isProcessor()){
 			return {
 				code: this.code,
+				links: this.links
 			}
 		} else {
 			return this.config;
