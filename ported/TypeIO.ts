@@ -27,7 +27,6 @@ export class TypeIO {
 					return new BlockConfig(BlockConfigType.string, null);
 				}
 			case 5:
-				//TODO return this in a correct format;
 				return new BlockConfig(BlockConfigType.content, [buf.readInt8(), buf.readInt16BE()]);
 			case 6:
 				let numbers:number[] = [];
@@ -35,7 +34,7 @@ export class TypeIO {
 				for(let i = 0; i < numInts; i ++){
 					numbers.push(buf.readInt32BE());
 				}
-				return new BlockConfig(BlockConfigType.content, numbers);
+				return new BlockConfig(BlockConfigType.intarray, numbers);
 			case 7:
 				return new BlockConfig(BlockConfigType.point, new Point2(buf.readInt32BE(), buf.readInt32BE()));
 			case 8:
