@@ -56,7 +56,7 @@ export enum Item {
 	blast_compound = 14,
 	pyratite = 15,
 }
-export type BlockConfigValue = null | number | bigint | string | [type: number, id: number] | number[] | Point2 | Point2[] | boolean;
+export type BlockConfigValue = null | number | bigint | string | [type: number, id: number] | number[] | Point2 | Point2[] | boolean | boolean[];
 
 /**0 is right, 1 is up, 2 is left, 3 is down. */
 export type Rotation = 0 | 1 | 2 | 3;

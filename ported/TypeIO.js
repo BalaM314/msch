@@ -26,7 +26,6 @@ export class TypeIO {
                     return new BlockConfig(BlockConfigType.string, null);
                 }
             case 5:
-                //TODO return this in a correct format;
                 return new BlockConfig(BlockConfigType.content, [buf.readInt8(), buf.readInt16BE()]);
             case 6:
                 let numbers = [];
