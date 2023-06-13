@@ -96,7 +96,7 @@ export class Tile {
             };
         }
         else {
-            return `BlockConfig {BlockConfigType[${this.config.type}: ${this.config.value}}`;
+            return `BlockConfig {[type ${this.config.type}] ${typeof this.config.value == "string" ? `"${this.config.value}"` : this.config.value}}`;
         }
     }
 }
