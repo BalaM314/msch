@@ -1,6 +1,6 @@
 {
   "name": "msch",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "type": "module",
   "description": "A library to parse Mindustry schematic files.",
   "main": "index.js",
