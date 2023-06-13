@@ -95,7 +95,7 @@ export class Tile {
 	compressLogicConfig(){
 		if(!this.isProcessor()) throw new Error("not a processor");
 		if(!this.links || !this.code) throw new Error("data was never decompressed");
-		return Tile.compressLogicConfig({
+		this.config.value = Tile.compressLogicConfig({
 			links: this.links,
 			code: this.code
 		});
