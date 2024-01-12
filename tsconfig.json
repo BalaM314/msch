@@ -6,6 +6,6 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "moduleResolution": "node",
-    "strictNullChecks": true
+    "strictNullChecks": true,
   }
 }

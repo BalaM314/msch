@@ -1,3 +1,10 @@
+/*
+Copyright © <BalaM314>, 2024.
+This file is part of msch.
+msch is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+msch is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+You should have received a copy of the GNU Lesser General Public License along with msch. If not, see <https://www.gnu.org/licenses/>.
+*/
 import { BlockConfigType } from "../types.js";
 import { BlockConfig } from "../classes/BlockConfig.js";
 import { Point2 } from "./Point2.js";
@@ -33,7 +40,7 @@ export class TypeIO {
                 for (let i = 0; i < numInts; i++) {
                     numbers.push(buf.readInt32BE());
                 }
-                return new BlockConfig(BlockConfigType.content, numbers);
+                return new BlockConfig(BlockConfigType.intarray, numbers);
             case 7:
                 return new BlockConfig(BlockConfigType.point, new Point2(buf.readInt32BE(), buf.readInt32BE()));
             case 8:
@@ -46,7 +53,7 @@ export class TypeIO {
             case 10:
                 return new BlockConfig(BlockConfigType.boolean, !!buf.readUInt8());
             case 11:
-                return new BlockConfig(BlockConfigType.double, !!buf.readDoubleBE());
+                return new BlockConfig(BlockConfigType.double, buf.readDoubleBE());
             case 12:
                 //Should technically be a BuildingBox, but thats equivalent to a Point2 for this program.
                 return new BlockConfig(BlockConfigType.buildingbox, Point2.from(buf.readInt32BE()));

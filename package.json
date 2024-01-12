@@ -17,12 +17,15 @@
     "parse-schematic"
   ],
   "author": "BalaM314",
-  "license": "GPL-3.0-or-later",
+  "license": "LGPL-3.0-or-later",
   "bugs": {
     "url": "https://github.com/BalaM314/msch/issues"
   },
   "homepage": "https://github.com/BalaM314/msch#readme",
   "dependencies": {
     "smart-buffer": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0"
   }
 }

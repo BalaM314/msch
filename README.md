@@ -6,3 +6,5 @@
 Can parse schematics, decoding config values (eg extracts processor byteconfig to code and links variables). Uses NodeJS buffers for IO.
 
 If you are looking for a frontend, see [msch-generate](https://github.com/BalaM314/msch-generate)
+
+Copyright © BalaM314, 2024. GNU Lesser General Public License.
