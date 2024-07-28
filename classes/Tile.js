@@ -49,6 +49,8 @@ export class Tile {
     }
     /**Decompresses a processor config into links and code. */
     static decompressLogicConfig(config) {
+        if (config.type != BlockConfigType.bytearray)
+            throw new Error(`Cannot decompress logic config, config type is ${config.type}`);
         let data = new SmartBuffer({
             buff: zlib.inflateSync(Uint8Array.from(config.value))
         });
@@ -71,9 +73,12 @@ export class Tile {
     decompressLogicConfig() {
         if (!this.isProcessor())
             throw new Error("not a processor");
-        let { code, links } = Tile.decompressLogicConfig(this.config);
-        this.code = code;
-        this.links = links;
+        if (this.config.type == BlockConfigType.bytearray)
+            ({ code: this.code, links: this.links } = Tile.decompressLogicConfig(this.config));
+        else {
+            this.code = [];
+            this.links = [];
+        }
     }
     /**Compresses links and code for serialization. */
     static compressLogicConfig({ links, code }) {
