@@ -149,8 +149,8 @@ export class Schematic {
      * @returns { (Tile|null)[][] } Tiles sorted into a grid.
      */
     static sortTiles(tiles, width, height) {
-        let sortedTiles = new Array(height).fill([]).map(() => new Array(width).fill(null));
-        for (let tile of tiles) {
+        const sortedTiles = Array.from({ length: height }, () => new Array(width).fill(null));
+        for (const tile of tiles) {
             sortedTiles[tile.y][tile.x] = tile;
         }
         return sortedTiles;
@@ -161,14 +161,7 @@ export class Schematic {
      * @returns { Tile[] } List of unsorted tiles.
      */
     static unsortTiles(tiles) {
-        let unsortedTiles = [];
-        for (let column of tiles) {
-            for (let tile of column) {
-                if (tile != null)
-                    unsortedTiles.push(tile);
-            }
-        }
-        return unsortedTiles;
+        return tiles.flat().filter(Boolean);
     }
     /**
      * Display a schematic to console.

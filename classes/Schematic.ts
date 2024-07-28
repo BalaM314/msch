@@ -170,8 +170,8 @@ export class Schematic {
 	 * @returns { (Tile|null)[][] } Tiles sorted into a grid.
 	 */
 	static sortTiles(tiles: Tile[], width: number, height: number): (Tile | null)[][] {
-		let sortedTiles = new Array<Tile[]>(height).fill([]).map(() => new Array<Tile|null>(width).fill(null));
-		for (let tile of tiles) {
+		const sortedTiles = Array.from({length: height}, () => new Array<Tile | null>(width).fill(null));
+		for(const tile of tiles){
 			sortedTiles[tile.y][tile.x] = tile;
 		}
 		return sortedTiles;
@@ -182,14 +182,7 @@ export class Schematic {
 	 * @returns { Tile[] } List of unsorted tiles.
 	 */
 	static unsortTiles(tiles: (Tile | null)[][]): Tile[] {
-		let unsortedTiles: Tile[] = [];
-		for (let column of tiles) {
-			for (let tile of column) {
-				if (tile != null)
-					unsortedTiles.push(tile);
-			}
-		}
-		return unsortedTiles;
+		return tiles.flat().filter(Boolean);
 	}
 
 	/**

@@ -8,6 +8,13 @@ You should have received a copy of the GNU Lesser General Public License along w
 
 import { Point2 } from "./ported/Point2.js";
 
+export type Truthy<T> = T extends (false | undefined | null) ? never : T;
+
+declare global {
+	interface Array<T> {
+		filter(predicate:BooleanConstructor):Array<Truthy<T>>;
+	}
+}
 
 export enum BlockConfigType {
 	null = 0,
