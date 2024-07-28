@@ -17,22 +17,29 @@ export class Tile {
         this.name = name;
         this.x = x;
         this.y = y;
-        if (config instanceof BlockConfig || config == undefined) {
-            this.config = config ?? BlockConfig.null;
-            this.rotation = rotation ?? 0;
-        }
-        else if (config instanceof Array && (typeof config[0] == "undefined" || typeof config[0] == "string")) {
-            if (!this.isProcessor())
-                throw new Error("not a processor");
-            this.code = config;
-            this.config = new BlockConfig(BlockConfigType.bytearray, []);
-            this.links = [];
-            this.rotation = 0;
-            this.compressLogicConfig();
+        if (this.isProcessor()) {
+            if (config == undefined || config == BlockConfig.null) {
+                this.config = BlockConfig.null;
+                this.code = [];
+            }
+            else if (Array.isArray(config)) {
+                this.code = config;
+                this.config = new BlockConfig(BlockConfigType.bytearray, []);
+                this.links = [];
+                this.compressLogicConfig();
+            }
+            else {
+                this.config = config;
+                this.code = [];
+                this.links = [];
+            }
         }
         else {
-            throw new TypeError(`Invalid arguments to Tile constructor ([${Array.from(arguments).join(", ")}])`);
+            if (Array.isArray(config))
+                throw new TypeError(`Invalid arguments to Tile constructor ([${Array.from(arguments).join(", ")}])`);
+            this.config = config ?? BlockConfig.null;
         }
+        this.rotation = rotation ?? 0;
     }
     toString() {
         return `${this.name}`;
@@ -89,10 +96,11 @@ export class Tile {
             throw new Error("not a processor");
         if (!this.links || !this.code)
             throw new Error("data was never decompressed");
-        this.config.value = Tile.compressLogicConfig({
-            links: this.links,
-            code: this.code
-        });
+        if (this.config.type == BlockConfigType.bytearray)
+            this.config.value = Tile.compressLogicConfig({
+                links: this.links,
+                code: this.code
+            });
     }
     /**Used for displaying config. */
     formatConfig() {
