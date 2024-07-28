@@ -18,7 +18,7 @@ export class SmartBuffer extends _SmartBuffer {
         return this.readString(size);
     }
     writeUTF8(str) {
-        this.writeUInt16BE(str.length);
+        this.writeUInt16BE(Buffer.byteLength(str, "utf-8"));
         this.writeString(str);
     }
 }
