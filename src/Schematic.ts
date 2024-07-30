@@ -38,9 +38,10 @@ export class Schematic {
 	/**
 	 * Creates a new Schematic from serialized data. 
 	 * @param { Buffer } inputData A buffer containing the data.
+	 * @param maxSize Defaults to 128. Schematics larger than this size cannot be read by Mindustry without mods.
 	 * @returns { Schematic } the loaded schematic.
 	 */
-	static read(inputData: Buffer):Schematic | string {
+	static read(inputData: Buffer, maxSize = 128):Schematic | string {
 		let rawData = new SmartBuffer({
 			buff: inputData
 		});
@@ -54,7 +55,7 @@ export class Schematic {
 		});
 		let width = data.readUInt16BE();
 		let height = data.readUInt16BE();
-		if (width > 128 || height > 128) return "Schematic is too large, maximum size is 128x128."; //TODO conf
+		if (width > maxSize || height > maxSize) return "Schematic is too large, maximum size is 128x128."; //TODO conf
 		
 		let tagcount = data.readUInt8();
 		let tags: Schematic["tags"] = {};
@@ -109,7 +110,8 @@ export class Schematic {
 		}
 	}
 	
-	/**Serializes this schematic.
+	/**
+	 * Serializes this schematic.
 	 * @returns { SmartBuffer } The output data.
 	 */
 	write(): SmartBuffer {
@@ -207,9 +209,14 @@ export class Schematic {
 		console.log(this.tags);
 		if(verbose){
 			console.log("Configs:");
-			Schematic.unsortTiles(this.tiles).forEach(tile =>
-				tile.config.type == BlockConfigType.null ? 0 : console.log(tile.name, tile.x, tile.y, tile.formatConfig())
-			);
+			let printed = false;
+			Schematic.unsortTiles(this.tiles).forEach(tile => {
+				if(tile.config.type != BlockConfigType.null){
+					console.log(tile.name, tile.x, tile.y, tile.formatConfig());
+					printed = true;
+				}
+			});
+			if(!printed) console.log(`No configs.`);
 		}
 	}
 
