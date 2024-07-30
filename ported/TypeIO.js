@@ -16,54 +16,55 @@ export class TypeIO {
     static readObject(buf) {
         let type = buf.readUInt8();
         switch (type) {
-            case 0:
-                return new BlockConfig(BlockConfigType.null, null);
-            case 1:
-                return new BlockConfig(BlockConfigType.int, buf.readInt32BE());
-            case 2:
-                return new BlockConfig(BlockConfigType.long, buf.readBigInt64BE());
-            case 3:
-                return new BlockConfig(BlockConfigType.float, buf.readFloatBE());
-            case 4:
+            case BlockConfigType.null:
+                return new BlockConfig(type, null);
+            case BlockConfigType.int:
+                return new BlockConfig(type, buf.readInt32BE());
+            case BlockConfigType.long:
+                return new BlockConfig(type, buf.readBigInt64BE());
+            case BlockConfigType.float:
+                return new BlockConfig(type, buf.readFloatBE());
+            case BlockConfigType.string:
                 let exists = buf.readInt8();
                 if (exists != 0) {
-                    return new BlockConfig(BlockConfigType.string, buf.readUTF8());
+                    return new BlockConfig(type, buf.readUTF8());
                 }
                 else {
-                    return new BlockConfig(BlockConfigType.string, null);
+                    return new BlockConfig(type, null);
                 }
-            case 5:
-                return new BlockConfig(BlockConfigType.content, [buf.readInt8(), buf.readInt16BE()]);
-            case 6:
+            case BlockConfigType.content:
+                return new BlockConfig(type, [buf.readInt8(), buf.readInt16BE()]);
+            case BlockConfigType.intarray:
                 let numbers = [];
                 let numInts = buf.readInt16BE();
                 for (let i = 0; i < numInts; i++) {
                     numbers.push(buf.readInt32BE());
                 }
-                return new BlockConfig(BlockConfigType.intarray, numbers);
-            case 7:
-                return new BlockConfig(BlockConfigType.point, new Point2(buf.readInt32BE(), buf.readInt32BE()));
-            case 8:
+                return new BlockConfig(type, numbers);
+            case BlockConfigType.point:
+                return new BlockConfig(type, new Point2(buf.readInt32BE(), buf.readInt32BE()));
+            case BlockConfigType.pointarray:
                 let points = [];
                 let numPoints = buf.readInt8();
                 for (let i = 0; i < numPoints; i++) {
                     points.push(Point2.from(buf.readInt32BE()));
                 }
-                return new BlockConfig(BlockConfigType.pointarray, points);
-            case 10:
-                return new BlockConfig(BlockConfigType.boolean, !!buf.readUInt8());
-            case 11:
-                return new BlockConfig(BlockConfigType.double, buf.readDoubleBE());
-            case 12:
+                return new BlockConfig(type, points);
+            case BlockConfigType.boolean:
+                return new BlockConfig(type, !!buf.readUInt8());
+            case BlockConfigType.double:
+                return new BlockConfig(type, buf.readDoubleBE());
+            case BlockConfigType.building:
+            case BlockConfigType.buildingbox:
                 //Should technically be a BuildingBox, but thats equivalent to a Point2 for this program.
-                return new BlockConfig(BlockConfigType.buildingbox, Point2.from(buf.readInt32BE()));
-            case 14:
+                return new BlockConfig(type, Point2.from(buf.readInt32BE()));
+            case BlockConfigType.bytearray:
                 let numBytes = buf.readInt32BE();
                 let bytes = [];
                 for (let i = 0; i < numBytes; i++) {
                     bytes.push(buf.readUInt8());
                 }
-                return new BlockConfig(BlockConfigType.bytearray, bytes);
+                return new BlockConfig(type, bytes);
             default:
                 throw new Error(`Unknown or not implemented object type (${type}) for a tile.`);
         }
