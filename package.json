@@ -26,6 +26,8 @@
     "smart-buffer": "^4.2.0"
   },
   "devDependencies": {
-    "@types/node": "^20.11.0"
+    "@types/jasmine": "^5.1.4",
+    "@types/node": "^20.11.0",
+    "jasmine": "^5.2.0"
   }
 }

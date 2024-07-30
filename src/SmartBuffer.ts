@@ -7,7 +7,7 @@ You should have received a copy of the GNU Lesser General Public License along w
 */
 
 import { SmartBuffer as _SmartBuffer } from "smart-buffer";
-import { fail } from "./utils";
+import { fail } from "./utils.js";
 
 /**Extension of SmartBuffer with extra methods. */
 export class SmartBuffer extends _SmartBuffer {
