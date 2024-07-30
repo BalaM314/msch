@@ -107,7 +107,7 @@ export class TypeIO {
                 buf.writeInt32BE(object.value.y);
                 break;
             case BlockConfigType.pointarray:
-                buf.writeInt16BE(object.value.length);
+                buf.writeInt8(object.value.length);
                 for (let point of object.value) {
                     buf.writeInt32BE(point.pack());
                 }
@@ -123,7 +123,7 @@ export class TypeIO {
                 break;
             //TODO implement the rest of them.
             default:
-                throw new Error(`Unknown or not implemented object type (${object.type}) for a tile.`);
+                throw new Error(`Unknown or not implemented object type (${BlockConfigType[object.type] ?? object.type}) for a tile.`);
         }
     }
 }
