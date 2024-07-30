@@ -13,6 +13,7 @@ import { Point2 } from "./Point2.js";
 import * as zlib from "zlib";
 import { Rotation } from "./types.js";
 import { BlockConfigType } from "./BlockConfig.js";
+import { fail } from "./utils.js";
 
 export class Schematic {
 	/**Magic header bytes that must be present at the start of a schematic file. */
@@ -31,7 +32,7 @@ export class Schematic {
 		tiles: Tile[]
 	) {
 		this.tiles = Schematic.sortTiles(tiles, width, height);
-		this.loadConfigs();
+		this.readConfigs();
 	}
 
 	/**
@@ -39,23 +40,21 @@ export class Schematic {
 	 * @param { Buffer } inputData A buffer containing the data.
 	 * @returns { Schematic } the loaded schematic.
 	 */
-	static from(inputData: Buffer):Schematic {
+	static read(inputData: Buffer):Schematic | string {
 		let rawData = new SmartBuffer({
 			buff: inputData
 		});
 		for (let char of Schematic.headerBytes) {
-			if (rawData.readUInt8() != char) {
-				throw new Error("Data is not a schematic.");
-			}
+			if (rawData.readUInt8() != char) return `Not a schematic file (header bytes did not match)`;
 		}
 		let version = rawData.readInt8();
-		if(version != 1) throw new Error(`Unknown schematic version ${version}`);
+		if(version != 1) return `Unknown schematic version ${version}`;
 		let data = new SmartBuffer({
 			buff: zlib.inflateSync(inputData.subarray(5))
 		});
 		let width = data.readUInt16BE();
 		let height = data.readUInt16BE();
-		if (width > 128 || height > 128) throw new Error("Schematic is too large.");
+		if (width > 128 || height > 128) return "Schematic is too large, maximum size is 128x128."; //TODO conf
 		
 		let tagcount = data.readUInt8();
 		let tags: Schematic["tags"] = {};
@@ -76,16 +75,16 @@ export class Schematic {
 		
 		let numTiles = data.readInt32BE();
 		let tiles = new Array<Tile>(numTiles);
-		if (numTiles > width * height) throw new Error("Schematic contains too many tiles.");
+		if (numTiles > width * height) return `Schematic contains too many tiles: maximum possible is width * height (${width * height}), but there were ${numTiles} tiles.`;
 		for (let i = 0; i < numTiles; i++) {
 			let id = data.readInt8();
 			let block = blocks[id];
 			let [x, y] = Point2.unpack(data.readInt32BE());
 			let config = TypeIO.readObject(data);
 			let rotation = data.readInt8();
-			if(![0, 1, 2, 3].includes(rotation)) throw new Error(`Invalid rotation ${rotation}`);
+			if(![0, 1, 2, 3].includes(rotation)) return `Invalid rotation ${rotation}, valid values are 0, 1, 2, 3`;
 			if(!(x < width && y < height))
-				throw new Error(`Invalid position (${x},${y}): out of bounds for schematic of size ${width}x${height}`);
+				return `Invalid position (${x},${y}): out of bounds for schematic of size ${width}x${height}`;
 			if (!block || block == "air") continue;
 			tiles[i] = new Tile(block, x, y, config, rotation as Rotation);
 		}
@@ -93,23 +92,19 @@ export class Schematic {
 	}
 
 	/**Loads decompressable configs from compressed data. */
-	loadConfigs(){
+	readConfigs(){
 		for(let column of this.tiles){
 			for(let tile of column){
-				if(tile?.isProcessor()){
-					tile.decompressLogicConfig();
-				}
+				tile?.readConfig();
 			}
 		}
 	}
 
 	/**Compresses configs to be saved. */
-	saveConfigs(){
+	writeConfigs(){
 		for(let column of this.tiles){
 			for(let tile of column){
-				if(tile?.isProcessor()){
-					tile.compressLogicConfig();
-				}
+				tile?.writeConfig();
 			}
 		}
 	}
@@ -118,7 +113,7 @@ export class Schematic {
 	 * @returns { SmartBuffer } The output data.
 	 */
 	write(): SmartBuffer {
-		this.saveConfigs();
+		this.writeConfigs();
 		let output = new SmartBuffer();
 		for (let char of Schematic.headerBytes) {
 			output.writeUInt8(char);
@@ -176,7 +171,7 @@ export class Schematic {
 		const sortedTiles = Array.from({length: height}, () => new Array<Tile | null>(width).fill(null));
 		for(const tile of tiles){
 			if(!(0 <= tile.x && tile.x < width && 0 <= tile.y && tile.y < height))
-				throw new Error(`Invalid position (${tile.x},${tile.y}): out of bounds for schematic of size ${width}x${height}`);
+				fail(`Invalid position (${tile.x},${tile.y}): out of bounds for schematic of size ${width}x${height}`);
 			sortedTiles[tile.y][tile.x] = tile;
 		}
 		return sortedTiles;

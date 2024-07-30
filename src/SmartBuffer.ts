@@ -7,12 +7,13 @@ You should have received a copy of the GNU Lesser General Public License along w
 */
 
 import { SmartBuffer as _SmartBuffer } from "smart-buffer";
+import { fail } from "./utils";
 
 /**Extension of SmartBuffer with extra methods. */
 export class SmartBuffer extends _SmartBuffer {
 	readNullByte() {
 		let byte = this.readUInt8();
-		if (byte != 0) throw new Error(`Expected null byte, got ${byte.toString(16)}`);
+		if (byte != 0) fail(`Expected null byte, got ${byte.toString(16)}`);
 	}
 	readUTF8() {
 		let size = this.readUInt16BE();

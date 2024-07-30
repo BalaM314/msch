@@ -13,10 +13,12 @@ import { Tile } from "./src/Tile.js";
 import { Point2 } from "./src/Point2.js";
 import { TypeIO } from "./src/TypeIO.js";
 import { ContentType, Item, Rotation, Link } from "./src/types.js";
+import { MessageError } from "./src/utils.js";
 
 
 export {
 	Schematic, Tile, BlockConfig, BlockConfigType, BlockConfigValue,
 	Point2, TypeIO, SmartBuffer,
-	ContentType, Item, Rotation, Link
+	ContentType, Item, Rotation, Link,
+	MessageError
 };
