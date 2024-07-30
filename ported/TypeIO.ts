@@ -10,10 +10,10 @@ import { SmartBuffer } from "./SmartBuffer.js";
 import { BlockConfig, BlockConfigType } from "../classes/BlockConfig.js";
 import { Point2 } from "./Point2.js";
 
+/**
+ * Instead of Object, uses BlockConfig, a typed wrapper of values.
+ **/
 export class TypeIO {
-	/**Removed one layer of abstraction
-	 * Only works with BlockConfigs instead of Objects.
-	 * This was nescessary because in Java you can see if null was meant to be a string, but not in JS.*/
 	static readObject(buf: SmartBuffer):BlockConfig {
 		let type = buf.readUInt8();
 		switch (type) {

@@ -18,16 +18,15 @@ export class Schematic {
 	/**Magic header bytes that must be present at the start of a schematic file. */
 	static headerBytes: number[] = ['m', 's', 'c', 'h'].map(char => char.charCodeAt(0));
 	/**Blank schematic. */
-	static blank:Schematic = new Schematic(0,0,1,{},[],[]);
+	static blank:Schematic = new Schematic(0, 0, 1, {}, [], []);
 	/**Tiles arranged in a grid. */
 	tiles: (Tile | null)[][] = [];
 	constructor(
 		public height: number,
 		public width: number,
+		/** Currently, the only version is 1 */
 		public version: number,
-		public tags: {
-			[name: string]: string;
-		},
+		public tags: Record<string, string>,
 		public labels: string[],
 		tiles: Tile[]
 	) {
@@ -40,7 +39,7 @@ export class Schematic {
 	 * @param { Buffer } inputData A buffer containing the data.
 	 * @returns { Schematic } the loaded schematic.
 	 */
-	static from(inputData: Buffer) {
+	static from(inputData: Buffer):Schematic {
 		let rawData = new SmartBuffer({
 			buff: inputData
 		});
@@ -50,40 +49,45 @@ export class Schematic {
 			}
 		}
 		let version = rawData.readInt8();
+		if(version != 1) throw new Error(`Unknown schematic version ${version}`);
 		let data = new SmartBuffer({
-			buff: zlib.inflateSync(inputData.slice(5))
+			buff: zlib.inflateSync(inputData.subarray(5))
 		});
-		let [width, height] = [data.readUInt16BE(), data.readUInt16BE()];
+		let width = data.readUInt16BE();
+		let height = data.readUInt16BE();
 		if (width > 128 || height > 128) throw new Error("Schematic is too large.");
 		
 		let tagcount = data.readUInt8();
-		let tags: typeof Schematic.prototype.tags = {};
+		let tags: Schematic["tags"] = {};
 		for (let i = 0; i < tagcount; i++) {
 			tags[data.readUTF8()] = data.readUTF8();
 		}
-		let labels: string[] = [];
+		let labels: string[];
 		try {
 			labels = JSON.parse(tags["labels"]);
-		} catch (err) {
-			console.warn("Failed to parse labels.");
+		} catch {
+			labels = [];
 		}
 
-		let numBlocks = data.readUInt8();
-		let blocks: Map<number, string> = new Map();
-		for (let i = 0; i < numBlocks; i++) {
-			blocks.set(i, data.readUTF8());
+		const blocks = new Array<string>(data.readUInt8());
+		for (let i = 0; i < blocks.length; i++) {
+			blocks[i] = data.readUTF8();
 		}
 		
 		let numTiles = data.readInt32BE();
-		let tiles: ReturnType<typeof Schematic.unsortTiles> = [];
+		let tiles = new Array<Tile>(numTiles);
 		if (numTiles > width * height) throw new Error("Schematic contains too many tiles.");
 		for (let i = 0; i < numTiles; i++) {
 			let id = data.readInt8();
-			let block = blocks.get(id)!;
-			let position = data.readInt32BE();
+			let block = blocks[id];
+			let [x, y] = Point2.unpack(data.readInt32BE());
 			let config = TypeIO.readObject(data);
-			let rotation = data.readInt8() as Rotation;
-			if (block && block != "air") tiles.push(new Tile(block, ...Point2.unpack(position), config, rotation));
+			let rotation = data.readInt8();
+			if(![0, 1, 2, 3].includes(rotation)) throw new Error(`Invalid rotation ${rotation}`);
+			if(!(x < width && y < height))
+				throw new Error(`Invalid position (${x},${y}): out of bounds for schematic of size ${width}x${height}`);
+			if (!block || block == "air") continue;
+			tiles[i] = new Tile(block, x, y, config, rotation as Rotation);
 		}
 		return new Schematic(height, width, version, tags, labels, tiles);
 	}
@@ -157,10 +161,8 @@ export class Schematic {
 	 * @param { Tile[] } unsortedTiles List of Tiles.
 	 * @returns { Set<string> }
 	 */
-	static getBlockMap(unsortedTiles: Tile[]) {
-		let blockMap = new Set<string>();
-		unsortedTiles.forEach(tile => blockMap.add(tile.name));
-		return blockMap;
+	static getBlockMap(unsortedTiles: Tile[]): Set<string> {
+		return new Set(unsortedTiles.map(t => t.name));
 	}
 
 	/**
@@ -173,6 +175,8 @@ export class Schematic {
 	static sortTiles(tiles: Tile[], width: number, height: number): (Tile | null)[][] {
 		const sortedTiles = Array.from({length: height}, () => new Array<Tile | null>(width).fill(null));
 		for(const tile of tiles){
+			if(!(0 <= tile.x && tile.x < width && 0 <= tile.y && tile.y < height))
+				throw new Error(`Invalid position (${tile.x},${tile.y}): out of bounds for schematic of size ${width}x${height}`);
 			sortedTiles[tile.y][tile.x] = tile;
 		}
 		return sortedTiles;
