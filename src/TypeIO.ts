@@ -7,7 +7,7 @@ You should have received a copy of the GNU Lesser General Public License along w
 */
 
 import { SmartBuffer } from "./SmartBuffer.js";
-import { BlockConfig, BlockConfigType } from "../classes/BlockConfig.js";
+import { BlockConfig, BlockConfigType } from "./BlockConfig.js";
 import { Point2 } from "./Point2.js";
 
 /**

@@ -5,10 +5,10 @@ msch is free software: you can redistribute it and/or modify it under the terms 
 msch is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License along with msch. If not, see <https://www.gnu.org/licenses/>.
 */
-import { SmartBuffer } from "../ported/SmartBuffer.js";
-import { Tile } from "../classes/Tile.js";
-import { TypeIO } from "../ported/TypeIO.js";
-import { Point2 } from "../ported/Point2.js";
+import { SmartBuffer } from "./SmartBuffer.js";
+import { Tile } from "./Tile.js";
+import { TypeIO } from "./TypeIO.js";
+import { Point2 } from "./Point2.js";
 import * as zlib from "zlib";
 import { BlockConfigType } from "./BlockConfig.js";
 export class Schematic {
@@ -146,9 +146,7 @@ export class Schematic {
      * @returns { Set<string> }
      */
     static getBlockMap(unsortedTiles) {
-        let blockMap = new Set();
-        unsortedTiles.forEach(tile => blockMap.add(tile.name));
-        return blockMap;
+        return new Set(unsortedTiles.map(t => t.name));
     }
     /**
      * Sorts a list of tiles into a grid.
@@ -160,6 +158,8 @@ export class Schematic {
     static sortTiles(tiles, width, height) {
         const sortedTiles = Array.from({ length: height }, () => new Array(width).fill(null));
         for (const tile of tiles) {
+            if (!(0 <= tile.x && tile.x < width && 0 <= tile.y && tile.y < height))
+                throw new Error(`Invalid position (${tile.x},${tile.y}): out of bounds for schematic of size ${width}x${height}`);
             sortedTiles[tile.y][tile.x] = tile;
         }
         return sortedTiles;

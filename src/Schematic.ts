@@ -6,12 +6,12 @@ msch is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY
 You should have received a copy of the GNU Lesser General Public License along with msch. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { SmartBuffer } from "../ported/SmartBuffer.js";
-import { Tile } from "../classes/Tile.js";
-import { TypeIO } from "../ported/TypeIO.js";
-import { Point2 } from "../ported/Point2.js";
+import { SmartBuffer } from "./SmartBuffer.js";
+import { Tile } from "./Tile.js";
+import { TypeIO } from "./TypeIO.js";
+import { Point2 } from "./Point2.js";
 import * as zlib from "zlib";
-import { Rotation } from "../types.js";
+import { Rotation } from "./types.js";
 import { BlockConfigType } from "./BlockConfig.js";
 
 export class Schematic {

@@ -7,12 +7,12 @@ You should have received a copy of the GNU Lesser General Public License along w
 */
 
 import { SmartBuffer } from "smart-buffer";
-import { BlockConfig, BlockConfigType, BlockConfigValue } from "./classes/BlockConfig.js";
-import { Schematic } from "./classes/Schematic.js";
-import { Tile } from "./classes/Tile.js";
-import { Point2 } from "./ported/Point2.js";
-import { TypeIO } from "./ported/TypeIO.js";
-import { ContentType, Item, Rotation, Link } from "./types.js";
+import { BlockConfig, BlockConfigType, BlockConfigValue } from "./src/BlockConfig.js";
+import { Schematic } from "./src/Schematic.js";
+import { Tile } from "./src/Tile.js";
+import { Point2 } from "./src/Point2.js";
+import { TypeIO } from "./src/TypeIO.js";
+import { ContentType, Item, Rotation, Link } from "./src/types.js";
 
 
 export {

@@ -6,10 +6,10 @@ msch is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY
 You should have received a copy of the GNU Lesser General Public License along with msch. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { SmartBuffer } from "../ported/SmartBuffer.js";
+import { SmartBuffer } from "./SmartBuffer.js";
 import { BlockConfig, BlockConfigType } from "./BlockConfig.js";
 import * as zlib from "zlib";
-import { Rotation, Link } from "../types.js";
+import { Rotation, Link } from "./types.js";
 
 /**
  * Represents a tile in the schematic.
@@ -29,7 +29,6 @@ export class Tile {
 	static logicVersion: number = 1;
 	constructor(name: string, x: number, y: number, code: string[]);
 	constructor(name: string, x: number, y: number, config?: BlockConfig, rotation?: Rotation);
-
 	constructor(public name:string, public x:number, public y:number, config?: BlockConfig|string[], rotation?:Rotation) {
 		if(this.isProcessor()){
 			if(config == undefined || config == BlockConfig.null){

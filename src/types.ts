@@ -6,8 +6,6 @@ msch is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY
 You should have received a copy of the GNU Lesser General Public License along with msch. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Point2 } from "./ported/Point2.js";
-
 export type Truthy<T> = T extends (false | undefined | null) ? never : T;
 
 declare global {
