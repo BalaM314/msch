@@ -5,10 +5,8 @@ msch is free software: you can redistribute it and/or modify it under the terms 
 msch is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License along with msch. If not, see <https://www.gnu.org/licenses/>.
 */
-import { BlockConfigType } from "../types.js";
-import { BlockConfig } from "../classes/BlockConfig.js";
+import { BlockConfig, BlockConfigType } from "../classes/BlockConfig.js";
 import { Point2 } from "./Point2.js";
-/**This class is cursed. Not my fault, blame Anuke. */
 export class TypeIO {
     /**Removed one layer of abstraction
      * Only works with BlockConfigs instead of Objects.
@@ -55,7 +53,6 @@ export class TypeIO {
             case BlockConfigType.double:
                 return new BlockConfig(type, buf.readDoubleBE());
             case BlockConfigType.building:
-            case BlockConfigType.buildingbox:
                 //Should technically be a BuildingBox, but thats equivalent to a Point2 for this program.
                 return new BlockConfig(type, Point2.from(buf.readInt32BE()));
             case BlockConfigType.bytearray:
@@ -69,7 +66,8 @@ export class TypeIO {
                 throw new Error(`Unknown or not implemented object type (${type}) for a tile.`);
         }
     }
-    static writeObject(buf, object) {
+    static writeObject(buf, _object) {
+        const object = _object;
         buf.writeUInt8(object.type);
         switch (object.type) {
             case BlockConfigType.null:
@@ -113,7 +111,7 @@ export class TypeIO {
                 }
                 break;
             case BlockConfigType.boolean:
-                buf.writeUInt8(object.value);
+                buf.writeUInt8(object.value ? 1 : 0);
                 break;
             case BlockConfigType.bytearray:
                 buf.writeInt32BE(object.value.length);
@@ -121,7 +119,6 @@ export class TypeIO {
                     buf.writeUInt8(byte);
                 }
                 break;
-            //TODO implement the rest of them.
             default:
                 throw new Error(`Unknown or not implemented object type (${BlockConfigType[object.type] ?? object.type}) for a tile.`);
         }

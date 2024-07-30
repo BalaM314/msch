@@ -11,7 +11,8 @@ import { Tile } from "../classes/Tile.js";
 import { TypeIO } from "../ported/TypeIO.js";
 import { Point2 } from "../ported/Point2.js";
 import * as zlib from "zlib";
-import { BlockConfigType, Rotation } from "../types.js";
+import { Rotation } from "../types.js";
+import { BlockConfigType } from "./BlockConfig.js";
 
 export class Schematic {
 	/**Magic header bytes that must be present at the start of a schematic file. */

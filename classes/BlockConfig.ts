@@ -7,27 +7,59 @@ You should have received a copy of the GNU Lesser General Public License along w
 */
 
 import { Point2 } from "../ported/Point2.js";
-import { BlockConfigType, BlockConfigValue } from "../types.js";
 
-/**Wrapper for configs that preserves type. */
-export class BlockConfig {
+export enum BlockConfigType {
+	null = 0,
+	int = 1,
+	long = 2,
+	float = 3,
+	string = 4,
+	content = 5,
+	intarray = 6,
+	point = 7,
+	pointarray = 8,
+	//techNode = 9,
+	boolean = 10,
+	double = 11,
+	//In mindustry, `building` represents a resolved Building obtained from the World,
+	//or, if `box` is true, only the position.
+	//msch doesn't have Buildings so we can just read both as a Point2.
+	building = 12,
+	/** @deprecated use `BlockConfigType.building` instead, this is wrong */
+	buildingbox = 12,
+	//laccess = 13,
+	bytearray = 14,
+	booleanarray = 16,
+	unit = 17,
+};
+
+export type BlockConfigMapping = {
+	[BlockConfigType.null]: null;
+	[BlockConfigType.int]: number;
+	[BlockConfigType.long]: bigint;
+	[BlockConfigType.float]: number;
+	[BlockConfigType.string]: string | null; //for some reason String can be null, but no other one can
+	[BlockConfigType.content]: [type: number, id: number];
+	[BlockConfigType.intarray]: number[];
+	[BlockConfigType.point]: Point2;
+	[BlockConfigType.pointarray]: Point2[];
+	[BlockConfigType.boolean]: boolean;
+	[BlockConfigType.double]: number;
+	[BlockConfigType.building]: Point2;
+	[BlockConfigType.bytearray]: number[];
+	[BlockConfigType.booleanarray]: boolean[];
+	[BlockConfigType.unit]: number;
+};
+export type BlockConfigValue = BlockConfigMapping[BlockConfigType];
+
+/**Wrapper for configs that preserves type. For better inference, use `BlockConfig.DU` */
+export class BlockConfig<Type extends BlockConfigType = BlockConfigType> {
 	/**No config. */
 	static null = new BlockConfig(BlockConfigType.null, null);
-	constructor(type:BlockConfigType.null, value:null | null);
-	constructor(type:BlockConfigType.int, value:number | null);
-	constructor(type:BlockConfigType.long, value:bigint | null);
-	constructor(type:BlockConfigType.float, value:number | null);
-	constructor(type:BlockConfigType.string, value:string | null);
-	constructor(type:BlockConfigType.content, value:[type: number, id: number] | null);
-	constructor(type:BlockConfigType.intarray, value:number[] | null);
-	constructor(type:BlockConfigType.point, value:Point2 | null);
-	constructor(type:BlockConfigType.pointarray, value:Point2[] | null);
-	constructor(type:BlockConfigType.boolean, value:boolean | null);
-	constructor(type:BlockConfigType.double, value:number | null);
-	constructor(type:BlockConfigType.building, value:[type: number, id: number] | null);
-	constructor(type:BlockConfigType.buildingbox, value:Point2);
-	constructor(type:BlockConfigType.bytearray, value:number[] | null);
-	constructor(type:BlockConfigType.booleanarray, value:boolean[] | null);
-	constructor(type:BlockConfigType.unit, value:number | null);
-	constructor(public type: BlockConfigType, public value: BlockConfigValue) {}
+	constructor(public type: Type, public value: BlockConfigMapping[Type]) {}
+}
+
+export namespace BlockConfig {
+	/** BlockConfig as a discriminated union for better type inference. */
+	export type DU = BlockConfigType extends infer T extends BlockConfigType ? T extends unknown ? BlockConfig<T> : never : never;
 }

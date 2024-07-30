@@ -6,10 +6,10 @@ msch is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY
 You should have received a copy of the GNU Lesser General Public License along with msch. If not, see <https://www.gnu.org/licenses/>.
 */
 import { SmartBuffer } from "smart-buffer";
-import { BlockConfig } from "./classes/BlockConfig.js";
+import { BlockConfig, BlockConfigType } from "./classes/BlockConfig.js";
 import { Schematic } from "./classes/Schematic.js";
 import { Tile } from "./classes/Tile.js";
 import { Point2 } from "./ported/Point2.js";
 import { TypeIO } from "./ported/TypeIO.js";
-import { BlockConfigType, ContentType, Item } from "./types.js";
-export { Schematic, Tile, BlockConfig, Point2, TypeIO, SmartBuffer, BlockConfigType, ContentType, Item };
+import { ContentType, Item } from "./types.js";
+export { Schematic, Tile, BlockConfig, BlockConfigType, Point2, TypeIO, SmartBuffer, ContentType, Item };

@@ -10,7 +10,7 @@ import { Tile } from "../classes/Tile.js";
 import { TypeIO } from "../ported/TypeIO.js";
 import { Point2 } from "../ported/Point2.js";
 import * as zlib from "zlib";
-import { BlockConfigType } from "../types.js";
+import { BlockConfigType } from "./BlockConfig.js";
 export class Schematic {
     constructor(height, width, version, tags, labels, tiles) {
         this.height = height;

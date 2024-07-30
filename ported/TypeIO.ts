@@ -7,11 +7,9 @@ You should have received a copy of the GNU Lesser General Public License along w
 */
 
 import { SmartBuffer } from "./SmartBuffer.js";
-import { BlockConfigType } from "../types.js";
-import { BlockConfig } from "../classes/BlockConfig.js";
+import { BlockConfig, BlockConfigType } from "../classes/BlockConfig.js";
 import { Point2 } from "./Point2.js";
 
-/**This class is cursed. Not my fault, blame Anuke. */
 export class TypeIO {
 	/**Removed one layer of abstraction
 	 * Only works with BlockConfigs instead of Objects.
@@ -56,7 +54,7 @@ export class TypeIO {
 				return new BlockConfig(type, !! buf.readUInt8());
 			case BlockConfigType.double:
 				return new BlockConfig(type, buf.readDoubleBE());
-			case BlockConfigType.building: case BlockConfigType.buildingbox:
+			case BlockConfigType.building:
 				//Should technically be a BuildingBox, but thats equivalent to a Point2 for this program.
 				return new BlockConfig(type, Point2.from(buf.readInt32BE()));
 			case BlockConfigType.bytearray:
@@ -71,58 +69,58 @@ export class TypeIO {
 		}
 	}
 
-	static writeObject(buf: SmartBuffer, object: BlockConfig) {
+	static writeObject(buf: SmartBuffer, _object: BlockConfig) {
+		const object = _object as BlockConfig.DU;
 		buf.writeUInt8(object.type);
 		switch (object.type) {
 			case BlockConfigType.null:
 				break;
 			case BlockConfigType.int:
-				buf.writeUInt32BE(object.value as number);
+				buf.writeUInt32BE(object.value);
 				break;
 			case BlockConfigType.long:
-				buf.writeBigInt64BE(object.value as bigint);
+				buf.writeBigInt64BE(object.value);
 				break;
 			case BlockConfigType.float:
-				buf.writeFloatBE(object.value as number);
+				buf.writeFloatBE(object.value);
 				break;
 			case BlockConfigType.string:
 				if (object.value) {
 					buf.writeUInt8(1);
-					buf.writeUTF8(object.value as string);
+					buf.writeUTF8(object.value);
 				} else {
 					buf.writeUInt8(0);
 				}
 				break;
 			case BlockConfigType.content:
-				buf.writeUInt8((object.value as [type: number, id: number])[0]);
-				buf.writeInt16BE((object.value as [type: number, id: number])[1]);
+				buf.writeUInt8(object.value[0]);
+				buf.writeInt16BE(object.value[1]);
 				break;
 			case BlockConfigType.intarray:
-				buf.writeInt16BE((object.value as number[]).length);
-				for (let number of (object.value as number[])) {
+				buf.writeInt16BE(object.value.length);
+				for (let number of object.value) {
 					buf.writeInt32BE(number);
 				}
 				break;
 			case BlockConfigType.point:
-				buf.writeInt32BE((object.value as Point2).x);
-				buf.writeInt32BE((object.value as Point2).y);
+				buf.writeInt32BE(object.value.x);
+				buf.writeInt32BE(object.value.y);
 				break;
 			case BlockConfigType.pointarray:
-				buf.writeInt8((object.value as Point2[]).length);
-				for (let point of (object.value as Point2[])) {
+				buf.writeInt8(object.value.length);
+				for (let point of object.value) {
 					buf.writeInt32BE(point.pack());
 				}
 				break;
 			case BlockConfigType.boolean:
-				buf.writeUInt8(object.value as number);
+				buf.writeUInt8(object.value ? 1 : 0);
 				break;
 			case BlockConfigType.bytearray:
-				buf.writeInt32BE((object.value as number[]).length);
-				for (let byte of (object.value as number[])) {
+				buf.writeInt32BE(object.value.length);
+				for (let byte of object.value) {
 					buf.writeUInt8(byte);
 				}
 				break;
-			//TODO implement the rest of them.
 			default:
 				throw new Error(`Unknown or not implemented object type (${BlockConfigType[object.type] ?? object.type}) for a tile.`);
 		}

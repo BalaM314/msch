@@ -7,9 +7,9 @@ You should have received a copy of the GNU Lesser General Public License along w
 */
 
 import { SmartBuffer } from "../ported/SmartBuffer.js";
-import { BlockConfig } from "./BlockConfig.js";
+import { BlockConfig, BlockConfigType } from "./BlockConfig.js";
 import * as zlib from "zlib";
-import { BlockConfigType, Rotation, Link } from "../types.js";
+import { Rotation, Link } from "../types.js";
 
 /**
  * Represents a tile in the schematic.
@@ -59,7 +59,7 @@ export class Tile {
 		return Tile.logicBlocks.includes(this.name);
 	}
 	/**Decompresses a processor config into links and code. */
-	static decompressLogicConfig(config:BlockConfig){
+	static decompressLogicConfig(config:BlockConfig<BlockConfigType.bytearray>){
 		if(config.type != BlockConfigType.bytearray) throw new Error(`Cannot decompress logic config, config type is ${config.type}`);
 		let data = new SmartBuffer({
 			buff: zlib.inflateSync(Uint8Array.from(config.value as number[]))
@@ -83,7 +83,7 @@ export class Tile {
 	decompressLogicConfig(){
 		if(!this.isProcessor()) throw new Error("not a processor");
 		if(this.config.type == BlockConfigType.bytearray)
-			({ code:this.code, links:this.links } = Tile.decompressLogicConfig(this.config));
+			({ code:this.code, links:this.links } = Tile.decompressLogicConfig(this.config as BlockConfig<typeof this.config.type>));
 		else {
 			this.code = [];
 			this.links = [];
@@ -128,7 +128,7 @@ export class Tile {
 				links: this.links
 			}
 		} else {
-			return `BlockConfig {[type ${this.config.type}] ${typeof this.config.value == "string" ? `"${this.config.value}"` : this.config.value}}`;
+			return `BlockConfig {[type ${BlockConfigType[this.config.type] ?? this.config.type}] ${typeof this.config.value == "string" ? `"${this.config.value}"` : this.config.value}}`;
 		}
 	}
 	

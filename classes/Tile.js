@@ -6,9 +6,8 @@ msch is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY
 You should have received a copy of the GNU Lesser General Public License along with msch. If not, see <https://www.gnu.org/licenses/>.
 */
 import { SmartBuffer } from "../ported/SmartBuffer.js";
-import { BlockConfig } from "./BlockConfig.js";
+import { BlockConfig, BlockConfigType } from "./BlockConfig.js";
 import * as zlib from "zlib";
-import { BlockConfigType } from "../types.js";
 /**
  * Represents a tile in the schematic.
  */
@@ -116,7 +115,7 @@ export class Tile {
             };
         }
         else {
-            return `BlockConfig {[type ${this.config.type}] ${typeof this.config.value == "string" ? `"${this.config.value}"` : this.config.value}}`;
+            return `BlockConfig {[type ${BlockConfigType[this.config.type] ?? this.config.type}] ${typeof this.config.value == "string" ? `"${this.config.value}"` : this.config.value}}`;
         }
     }
 }
