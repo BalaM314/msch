@@ -11,6 +11,7 @@ import { TypeIO } from "./TypeIO.js";
 import { Point2 } from "./Point2.js";
 import * as zlib from "zlib";
 import { BlockConfigType } from "./BlockConfig.js";
+import { fail } from "./utils.js";
 export class Schematic {
     constructor(height, width, 
     /** Currently, the only version is 1 */
@@ -23,32 +24,31 @@ export class Schematic {
         /**Tiles arranged in a grid. */
         this.tiles = [];
         this.tiles = Schematic.sortTiles(tiles, width, height);
-        this.loadConfigs();
+        this.readConfigs();
     }
     /**
      * Creates a new Schematic from serialized data.
      * @param { Buffer } inputData A buffer containing the data.
      * @returns { Schematic } the loaded schematic.
      */
-    static from(inputData) {
+    static read(inputData) {
         let rawData = new SmartBuffer({
             buff: inputData
         });
         for (let char of Schematic.headerBytes) {
-            if (rawData.readUInt8() != char) {
-                throw new Error("Data is not a schematic.");
-            }
+            if (rawData.readUInt8() != char)
+                return `Not a schematic file (header bytes did not match)`;
         }
         let version = rawData.readInt8();
         if (version != 1)
-            throw new Error(`Unknown schematic version ${version}`);
+            return `Unknown schematic version ${version}`;
         let data = new SmartBuffer({
             buff: zlib.inflateSync(inputData.subarray(5))
         });
         let width = data.readUInt16BE();
         let height = data.readUInt16BE();
         if (width > 128 || height > 128)
-            throw new Error("Schematic is too large.");
+            return "Schematic is too large, maximum size is 128x128."; //TODO conf
         let tagcount = data.readUInt8();
         let tags = {};
         for (let i = 0; i < tagcount; i++) {
@@ -68,7 +68,7 @@ export class Schematic {
         let numTiles = data.readInt32BE();
         let tiles = new Array(numTiles);
         if (numTiles > width * height)
-            throw new Error("Schematic contains too many tiles.");
+            return `Schematic contains too many tiles: maximum possible is width * height (${width * height}), but there were ${numTiles} tiles.`;
         for (let i = 0; i < numTiles; i++) {
             let id = data.readInt8();
             let block = blocks[id];
@@ -76,9 +76,9 @@ export class Schematic {
             let config = TypeIO.readObject(data);
             let rotation = data.readInt8();
             if (![0, 1, 2, 3].includes(rotation))
-                throw new Error(`Invalid rotation ${rotation}`);
+                return `Invalid rotation ${rotation}, valid values are 0, 1, 2, 3`;
             if (!(x < width && y < height))
-                throw new Error(`Invalid position (${x},${y}): out of bounds for schematic of size ${width}x${height}`);
+                return `Invalid position (${x},${y}): out of bounds for schematic of size ${width}x${height}`;
             if (!block || block == "air")
                 continue;
             tiles[i] = new Tile(block, x, y, config, rotation);
@@ -86,22 +86,18 @@ export class Schematic {
         return new Schematic(height, width, version, tags, labels, tiles);
     }
     /**Loads decompressable configs from compressed data. */
-    loadConfigs() {
+    readConfigs() {
         for (let column of this.tiles) {
             for (let tile of column) {
-                if (tile?.isProcessor()) {
-                    tile.decompressLogicConfig();
-                }
+                tile?.readConfig();
             }
         }
     }
     /**Compresses configs to be saved. */
-    saveConfigs() {
+    writeConfigs() {
         for (let column of this.tiles) {
             for (let tile of column) {
-                if (tile?.isProcessor()) {
-                    tile.compressLogicConfig();
-                }
+                tile?.writeConfig();
             }
         }
     }
@@ -109,7 +105,7 @@ export class Schematic {
      * @returns { SmartBuffer } The output data.
      */
     write() {
-        this.saveConfigs();
+        this.writeConfigs();
         let output = new SmartBuffer();
         for (let char of Schematic.headerBytes) {
             output.writeUInt8(char);
@@ -123,15 +119,15 @@ export class Schematic {
             compressableData.writeUTF8(key);
             compressableData.writeUTF8(value);
         }
-        let unsortedTiles = Schematic.unsortTiles(this.tiles);
-        let blocks = Schematic.getBlockMap(unsortedTiles);
-        compressableData.writeUInt8(blocks.size);
-        for (let name of blocks.values()) {
+        const unsortedTiles = Schematic.unsortTiles(this.tiles);
+        const [allNames, mapping] = Schematic.getBlockMap(unsortedTiles);
+        compressableData.writeUInt8(allNames.length);
+        for (const name of allNames) {
             compressableData.writeUTF8(name);
         }
-        compressableData.writeInt32BE(unsortedTiles.length);
-        for (let tile of unsortedTiles) {
-            compressableData.writeUInt8(Array.from(blocks.values()).indexOf(tile.name));
+        compressableData.writeInt32BE(mapping.length);
+        for (const [tile, i] of mapping) {
+            compressableData.writeUInt8(i);
             compressableData.writeInt32BE(Point2.pack(tile.x, tile.y));
             TypeIO.writeObject(compressableData, tile.config);
             compressableData.writeUInt8(tile.rotation);
@@ -142,11 +138,15 @@ export class Schematic {
     }
     /**
      * Generates the block map needed to save tiles.
-     * @param { Tile[] } unsortedTiles List of Tiles.
-     * @returns { Set<string> }
      */
     static getBlockMap(unsortedTiles) {
-        return new Set(unsortedTiles.map(t => t.name));
+        const mapping = new Map();
+        const otherMapping = unsortedTiles.map(t => [t, mapping.get(t.name) ?? (() => {
+                const i = mapping.size;
+                mapping.set(t.name, i);
+                return i;
+            })()]);
+        return [Array.from(mapping.keys()), otherMapping];
     }
     /**
      * Sorts a list of tiles into a grid.
@@ -159,7 +159,7 @@ export class Schematic {
         const sortedTiles = Array.from({ length: height }, () => new Array(width).fill(null));
         for (const tile of tiles) {
             if (!(0 <= tile.x && tile.x < width && 0 <= tile.y && tile.y < height))
-                throw new Error(`Invalid position (${tile.x},${tile.y}): out of bounds for schematic of size ${width}x${height}`);
+                fail(`Invalid position (${tile.x},${tile.y}): out of bounds for schematic of size ${width}x${height}`);
             sortedTiles[tile.y][tile.x] = tile;
         }
         return sortedTiles;

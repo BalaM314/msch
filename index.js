@@ -12,4 +12,5 @@ import { Tile } from "./src/Tile.js";
 import { Point2 } from "./src/Point2.js";
 import { TypeIO } from "./src/TypeIO.js";
 import { ContentType, Item } from "./src/types.js";
-export { Schematic, Tile, BlockConfig, BlockConfigType, Point2, TypeIO, SmartBuffer, ContentType, Item };
+import { MessageError } from "./src/utils.js";
+export { Schematic, Tile, BlockConfig, BlockConfigType, Point2, TypeIO, SmartBuffer, ContentType, Item, MessageError };

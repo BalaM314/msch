@@ -6,12 +6,13 @@ msch is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY
 You should have received a copy of the GNU Lesser General Public License along with msch. If not, see <https://www.gnu.org/licenses/>.
 */
 import { SmartBuffer as _SmartBuffer } from "smart-buffer";
+import { fail } from "./utils";
 /**Extension of SmartBuffer with extra methods. */
 export class SmartBuffer extends _SmartBuffer {
     readNullByte() {
         let byte = this.readUInt8();
         if (byte != 0)
-            throw new Error(`Expected null byte, got ${byte.toString(16)}`);
+            fail(`Expected null byte, got ${byte.toString(16)}`);
     }
     readUTF8() {
         let size = this.readUInt16BE();

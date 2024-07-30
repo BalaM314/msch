@@ -8,6 +8,7 @@ You should have received a copy of the GNU Lesser General Public License along w
 import { SmartBuffer } from "./SmartBuffer.js";
 import { BlockConfig, BlockConfigType } from "./BlockConfig.js";
 import * as zlib from "zlib";
+import { crash, fail } from "./utils.js";
 /**
  * Represents a tile in the schematic.
  */
@@ -25,7 +26,7 @@ export class Tile {
                 this.code = config;
                 this.config = new BlockConfig(BlockConfigType.bytearray, []);
                 this.links = [];
-                this.compressLogicConfig();
+                this.writeConfig();
             }
             else {
                 this.config = config;
@@ -35,7 +36,7 @@ export class Tile {
         }
         else {
             if (Array.isArray(config))
-                throw new TypeError(`Invalid arguments to Tile constructor ([${Array.from(arguments).join(", ")}])`);
+                crash(`Invalid arguments to Tile constructor ([${Array.from(arguments).join(", ")}])`);
             this.config = config ?? BlockConfig.null;
         }
         this.rotation = rotation ?? 0;
@@ -49,13 +50,13 @@ export class Tile {
     /**Decompresses a processor config into links and code. */
     static decompressLogicConfig(config) {
         if (config.type != BlockConfigType.bytearray)
-            throw new Error(`Cannot decompress logic config, config type is ${config.type}`);
+            crash(`Cannot decompress logic config, config type is ${config.type}`);
         let data = new SmartBuffer({
             buff: zlib.inflateSync(Uint8Array.from(config.value))
         });
         let version = data.readInt8();
         if (version != 1)
-            throw new Error(`Unsupported logic code of version ${version}`);
+            fail(`Unsupported logic code of version ${version}`);
         let length = data.readInt32BE();
         let code = data.readBuffer(length).toString().split(/\r?\n/g);
         let numLinks = data.readInt32BE();
@@ -69,14 +70,14 @@ export class Tile {
         }
         return { code, links };
     }
-    decompressLogicConfig() {
-        if (!this.isProcessor())
-            throw new Error("not a processor");
-        if (this.config.type == BlockConfigType.bytearray)
-            ({ code: this.code, links: this.links } = Tile.decompressLogicConfig(this.config));
-        else {
-            this.code = [];
-            this.links = [];
+    readConfig() {
+        if (this.isProcessor()) {
+            if (this.config.type == BlockConfigType.bytearray)
+                ({ code: this.code, links: this.links } = Tile.decompressLogicConfig(this.config));
+            else {
+                this.code = [];
+                this.links = [];
+            }
         }
     }
     /**Compresses links and code for serialization. */
@@ -95,16 +96,16 @@ export class Tile {
         let compressedData = zlib.deflateSync(output.toBuffer());
         return Array.from(compressedData);
     }
-    compressLogicConfig() {
-        if (!this.isProcessor())
-            throw new Error("not a processor");
-        if (!this.links || !this.code)
-            throw new Error("data was never decompressed");
-        if (this.config.type == BlockConfigType.bytearray)
-            this.config.value = Tile.compressLogicConfig({
-                links: this.links,
-                code: this.code
-            });
+    writeConfig() {
+        if (this.isProcessor()) {
+            if (!this.links || !this.code)
+                crash("data was never decompressed");
+            if (this.config.type == BlockConfigType.bytearray)
+                this.config.value = Tile.compressLogicConfig({
+                    links: this.links,
+                    code: this.code
+                });
+        }
     }
     /**Used for displaying config. */
     formatConfig() {

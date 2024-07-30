@@ -7,6 +7,7 @@ You should have received a copy of the GNU Lesser General Public License along w
 */
 import { BlockConfig, BlockConfigType } from "./BlockConfig.js";
 import { Point2 } from "./Point2.js";
+import { fail } from "./utils.js";
 /**
  * Instead of Object, uses BlockConfig, a typed wrapper of values.
  **/
@@ -63,7 +64,7 @@ export class TypeIO {
                 }
                 return new BlockConfig(type, bytes);
             default:
-                throw new Error(`Unknown or not implemented object type (${type}) for a tile.`);
+                fail(`Unknown or not implemented object type (${type}) for a tile.`);
         }
     }
     static writeObject(buf, _object) {
@@ -120,7 +121,7 @@ export class TypeIO {
                 }
                 break;
             default:
-                throw new Error(`Unknown or not implemented object type (${BlockConfigType[object.type] ?? object.type}) for a tile.`);
+                fail(`Unknown or not implemented object type (${BlockConfigType[object.type] ?? object.type}) for a tile.`);
         }
     }
 }

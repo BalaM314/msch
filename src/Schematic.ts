@@ -130,17 +130,16 @@ export class Schematic {
 			compressableData.writeUTF8(value);
 		}
 
-		let unsortedTiles = Schematic.unsortTiles(this.tiles);
-		let blocks = Schematic.getBlockMap(unsortedTiles);
+		const unsortedTiles = Schematic.unsortTiles(this.tiles);
+		const [allNames, mapping] = Schematic.getBlockMap(unsortedTiles);
 
-		compressableData.writeUInt8(blocks.size);
-		for (let name of blocks.values()) {
+		compressableData.writeUInt8(allNames.length);
+		for (const name of allNames) {
 			compressableData.writeUTF8(name);
 		}
-
-		compressableData.writeInt32BE(unsortedTiles.length);
-		for (let tile of unsortedTiles) {
-			compressableData.writeUInt8(Array.from(blocks.values()).indexOf(tile.name));
+		compressableData.writeInt32BE(mapping.length);
+		for(const [tile, i] of mapping){
+			compressableData.writeUInt8(i);
 			compressableData.writeInt32BE(Point2.pack(tile.x, tile.y));
 			TypeIO.writeObject(compressableData, tile.config);
 			compressableData.writeUInt8(tile.rotation);
@@ -153,11 +152,17 @@ export class Schematic {
 	}
 	/**
 	 * Generates the block map needed to save tiles.
-	 * @param { Tile[] } unsortedTiles List of Tiles.
-	 * @returns { Set<string> }
 	 */
-	static getBlockMap(unsortedTiles: Tile[]): Set<string> {
-		return new Set(unsortedTiles.map(t => t.name));
+	static getBlockMap(unsortedTiles: Tile[]):[allNames:Array<string>, mapping: (readonly [Tile, number])[]] {
+		const mapping = new Map<string, number>();
+		const otherMapping = unsortedTiles.map(t =>
+			[t, mapping.get(t.name) ?? (() => {
+				const i = mapping.size;
+				mapping.set(t.name, i);
+				return i;
+			})()] as const
+		);
+		return [Array.from(mapping.keys()), otherMapping];
 	}
 
 	/**
