@@ -82,8 +82,7 @@ export class Schematic {
 			let block = blocks[id];
 			let [x, y] = Point2.unpack(data.readInt32BE());
 			let config = TypeIO.readObject(data);
-			let rotation = data.readInt8();
-			if(![0, 1, 2, 3].includes(rotation)) return `Invalid rotation ${rotation}, valid values are 0, 1, 2, 3`;
+			let rotation = data.readInt8() % 4; //some schems have a rotation of 4 for some reason
 			if(!(x < width && y < height))
 				return `Invalid position (${x},${y}): out of bounds for schematic of size ${width}x${height}`;
 			if (!block || block == "air") continue;

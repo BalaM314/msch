@@ -10,7 +10,8 @@ const files = await Promise.all((await fs.readdir(schemsDir)).filter(n => n.ends
 describe("Schematic parsing", () => {
 	for(const [file, data] of files) {
 		it(`should parse the binary file ${file}`, () => {
-			expect(() => Schematic.read(data)).not.toThrow();
+			const result = Schematic.read(data);
+			if(typeof result == "string") fail(result);
 		});
 	}
 });
