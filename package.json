@@ -1,6 +1,6 @@
 {
   "name": "msch",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "type": "module",
   "description": "A library to parse Mindustry schematic files.",
   "main": "index.js",
@@ -29,6 +29,11 @@
   "devDependencies": {
     "@types/jasmine": "^5.1.4",
     "@types/node": "^20.11.0",
-    "jasmine": "^5.2.0"
-  }
+    "jasmine": "^5.2.0",
+		"typescript": "^5.5.0"
+  },
+	"files": [
+		"src", "index.js", "index.ts",
+		"gpl.txt", "lgpl.txt"
+	]
 }
