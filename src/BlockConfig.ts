@@ -44,7 +44,7 @@ export type BlockConfigMapping = {
 	[BlockConfigType.long]: bigint;
 	[BlockConfigType.float]: number;
 	[BlockConfigType.string]: string | null; //for some reason String can be null, but no other one can
-	[BlockConfigType.content]: [type: ContentType, id: number];
+	[BlockConfigType.content]: readonly [type: ContentType, id: number];
 	[BlockConfigType.intarray]: number[];
 	[BlockConfigType.point]: Point2;
 	[BlockConfigType.pointarray]: Point2[];
