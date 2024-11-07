@@ -7,5 +7,6 @@
     "strict": true,
     "moduleResolution": "node",
     "strictNullChecks": true,
+		"types": []
   }
 }

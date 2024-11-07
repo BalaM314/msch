@@ -1,12 +1,12 @@
 import "jasmine";
-import path from "path";
+import path from "node:path";
 import * as fs from "node:fs/promises";
-import { Schematic } from "../src/Schematic.js";
-import { Tile } from "../src/Tile.js";
-import { fail } from "../src/utils.js";
-import { BlockConfig, BlockConfigType } from "../src/BlockConfig.js";
-import { Point2 } from "../src/Point2.js";
-import { ContentType } from "../src/types.js";
+import { Schematic } from "../../build/Schematic.js";
+import { Tile } from "../../build/Tile.js";
+import { fail } from "../../build/utils.js";
+import { BlockConfig, BlockConfigType } from "../../build/BlockConfig.js";
+import { Point2 } from "../../build/Point2.js";
+import { ContentType } from "../../build/types.js";
 
 const schemsDir = path.resolve("./spec/binaries");
 const files = await Promise.all((await fs.readdir(schemsDir)).filter(n => n.endsWith(".msch")).map(async file =>

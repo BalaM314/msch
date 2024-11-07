@@ -1,0 +1,3 @@
+build/* linguist-generated
+pnpm-lock.yaml linguist-generated
+*.msch binary
