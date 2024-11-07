@@ -7,6 +7,7 @@ You should have received a copy of the GNU Lesser General Public License along w
 */
 
 import { Point2 } from "./Point2.js";
+import { ContentType } from "./types.js";
 
 export enum BlockConfigType {
 	null = 0,
@@ -30,6 +31,10 @@ export enum BlockConfigType {
 	//laccess = 13,
 	bytearray = 14,
 	booleanarray = 16,
+	/**
+	 * @deprecated Warning: this means an actual in-game unit (by its id, which is only valid for one game), not a unit type.
+	 * If you want a unit type, see {@link BlockConfigType.content} with content type {@link ContentType.unit}
+	 */
 	unit = 17,
 };
 
@@ -39,7 +44,7 @@ export type BlockConfigMapping = {
 	[BlockConfigType.long]: bigint;
 	[BlockConfigType.float]: number;
 	[BlockConfigType.string]: string | null; //for some reason String can be null, but no other one can
-	[BlockConfigType.content]: [type: number, id: number];
+	[BlockConfigType.content]: [type: ContentType, id: number];
 	[BlockConfigType.intarray]: number[];
 	[BlockConfigType.point]: Point2;
 	[BlockConfigType.pointarray]: Point2[];

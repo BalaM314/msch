@@ -28,6 +28,10 @@ export var BlockConfigType;
     //laccess = 13,
     BlockConfigType[BlockConfigType["bytearray"] = 14] = "bytearray";
     BlockConfigType[BlockConfigType["booleanarray"] = 16] = "booleanarray";
+    /**
+     * @deprecated Warning: this means an actual in-game unit (by its id, which is only valid for one game), not a unit type.
+     * If you want a unit type, see {@link BlockConfigType.content} with content type {@link ContentType.unit}
+     */
     BlockConfigType[BlockConfigType["unit"] = 17] = "unit";
 })(BlockConfigType || (BlockConfigType = {}));
 ;
