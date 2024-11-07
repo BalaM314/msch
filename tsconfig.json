@@ -4,6 +4,7 @@
     "module": "es2022",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+		"noEmitOnError": true,
     "strict": true,
     "moduleResolution": "node",
     "strictNullChecks": true,

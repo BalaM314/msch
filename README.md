@@ -1,8 +1,23 @@
-## msch: A library to parse and edit Mindustry schematic files.
+# msch
 
-![image](https://github.com/BalaM314/msch/assets/71201189/87f0b29f-c391-4dd9-9e8a-2caddbed2be7)
+A library for TypeScript code to interact with Mindustry schematic binaries.
 
+Can serialize and deserialize schematics, decoding config values (extracts processor byteconfig to code and links). Uses NodeJS buffers.
 
-Can parse schematics, decoding config values (eg extracts processor byteconfig to code and links variables). Uses NodeJS buffers for IO.
+```ts
+import { Schematic, BlockConfig, BlockConfigType, ContentType, Unit } from "msch";
+import fs from "node:fs/promises";
 
-If you are looking for a frontend, see [msch-generate](https://github.com/BalaM314/msch-generate)
+const code = [`print "Hello 😀"`, `printflush message1`];
+const schem = new Schematic(10, 12, 1, {}, [], [
+	new Tile("micro-processor", 0, 0, code),
+	new Tile("bridge-conveyor", 0, 9, new BlockConfig(BlockConfigType.point, new Point2(-2, 0))),
+	new Tile("message", 11, 9, new BlockConfig(BlockConfigType.string, "hello 😀 world")),
+	new Tile("air-factory", 7, 1, new BlockConfig(BlockConfigType.content, [ContentType.unit, Unit.flare])),
+]);
+const buf = schem.write().toBuffer();
+await fs.writeFile("out.msch", buf);
+const schem2 = Schematic.read(buf);
+```
+
+If you are looking for a user interface, see [msch-generate](https://github.com/BalaM314/msch-generate)
