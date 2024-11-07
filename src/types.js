@@ -549,3 +549,4 @@ export var Block;
     Block[Block["world_message"] = 413] = "world_message";
     Block[Block["world_switch"] = 414] = "world_switch";
 })(Block || (Block = {}));
+[Block, ContentType, Item, Liquid, Unit].forEach(o => Object.setPrototypeOf(o, null));
