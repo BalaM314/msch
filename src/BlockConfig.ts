@@ -7,7 +7,7 @@ You should have received a copy of the GNU Lesser General Public License along w
 */
 
 import { Point2 } from "./Point2.js";
-import { ContentType } from "./types.js";
+import { ContentType, UnitCommand } from "./types.js";
 
 export enum BlockConfigType {
 	null = 0,
@@ -16,7 +16,7 @@ export enum BlockConfigType {
 	float = 3,
 	string = 4,
 	content = 5,
-	intarray = 6,
+	intseq = 6,
 	point = 7,
 	pointarray = 8,
 	//techNode = 9,
@@ -30,12 +30,19 @@ export enum BlockConfigType {
 	buildingbox = 12,
 	//laccess = 13,
 	bytearray = 14,
+	// unitcommand_INVALID = 15,
 	booleanarray = 16,
 	/**
 	 * @deprecated Warning: this means an actual in-game unit (by its id, which is only valid for one game), not a unit type.
 	 * If you want a unit type, see {@link BlockConfigType.content} with content type {@link ContentType.unit}
 	 */
 	unit = 17,
+	// vec2array = 18,
+	// vec2 = 19,
+	// team = 20,
+	intarray = 21,
+	// objectarray = 22,
+	unitcommand = 23,
 };
 
 export type BlockConfigMapping = {
@@ -45,7 +52,7 @@ export type BlockConfigMapping = {
 	[BlockConfigType.float]: number;
 	[BlockConfigType.string]: string | null; //for some reason String can be null, but no other one can
 	[BlockConfigType.content]: readonly [type: ContentType, id: number];
-	[BlockConfigType.intarray]: number[];
+	[BlockConfigType.intseq]: number[];
 	[BlockConfigType.point]: Point2;
 	[BlockConfigType.pointarray]: Point2[];
 	[BlockConfigType.boolean]: boolean;
@@ -54,6 +61,8 @@ export type BlockConfigMapping = {
 	[BlockConfigType.bytearray]: number[];
 	[BlockConfigType.booleanarray]: boolean[];
 	[BlockConfigType.unit]: number;
+	[BlockConfigType.intarray]: number[];
+	[BlockConfigType.unitcommand]: UnitCommand;
 };
 export type BlockConfigValue = BlockConfigMapping[BlockConfigType];
 

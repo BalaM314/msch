@@ -62,7 +62,7 @@ export class Tile {
 	static decompressLogicConfig(config:BlockConfig<BlockConfigType.bytearray>){
 		if(config.type != BlockConfigType.bytearray) crash(`Cannot decompress logic config, config type is ${config.type}`);
 		let data = new SmartBuffer({
-			buff: zlib.inflateSync(Uint8Array.from(config.value as number[]))
+			buff: zlib.inflateSync(Uint8Array.from(config.value))
 		});
 		let version = data.readInt8();
 		if(version != 1) fail(`Unsupported logic code of version ${version}`);

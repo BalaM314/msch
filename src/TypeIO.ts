@@ -65,6 +65,8 @@ export class TypeIO {
 					bytes.push(buf.readUInt8());
 				}
 				return new BlockConfig(type, bytes);
+			case BlockConfigType.unitcommand:
+				return new BlockConfig(BlockConfigType.unitcommand, buf.readUInt16BE());
 			default:
 				fail(`Unknown or not implemented object type (${type}) for a tile.`);
 		}
@@ -121,6 +123,9 @@ export class TypeIO {
 				for (let byte of object.value) {
 					buf.writeUInt8(byte);
 				}
+				break;
+			case BlockConfigType.unitcommand:
+				buf.writeUInt16BE(object.value); //Mindustry uses a signed short here for some reason, but an unsigned short when reading
 				break;
 			default:
 				fail(`Unknown or not implemented object type (${BlockConfigType[object.type] ?? object.type}) for a tile.`);

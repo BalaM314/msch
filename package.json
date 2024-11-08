@@ -1,6 +1,6 @@
 {
   "name": "msch",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "type": "module",
   "description": "A library to parse Mindustry schematic files.",
   "main": "build/index.js",
@@ -34,8 +34,6 @@
   },
   "files": [
     "build",
-    "index.js",
-    "index.ts",
     "extra/gpl.txt",
     "extra/lgpl.txt"
   ]
