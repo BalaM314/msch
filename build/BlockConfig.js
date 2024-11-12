@@ -13,7 +13,7 @@ export var BlockConfigType;
     BlockConfigType[BlockConfigType["float"] = 3] = "float";
     BlockConfigType[BlockConfigType["string"] = 4] = "string";
     BlockConfigType[BlockConfigType["content"] = 5] = "content";
-    BlockConfigType[BlockConfigType["intarray"] = 6] = "intarray";
+    BlockConfigType[BlockConfigType["intseq"] = 6] = "intseq";
     BlockConfigType[BlockConfigType["point"] = 7] = "point";
     BlockConfigType[BlockConfigType["pointarray"] = 8] = "pointarray";
     //techNode = 9,
@@ -24,15 +24,23 @@ export var BlockConfigType;
     //msch doesn't have Buildings so we can just read both as a Point2.
     BlockConfigType[BlockConfigType["building"] = 12] = "building";
     /** @deprecated use `BlockConfigType.building` instead, this is wrong */
+    // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
     BlockConfigType[BlockConfigType["buildingbox"] = 12] = "buildingbox";
     //laccess = 13,
     BlockConfigType[BlockConfigType["bytearray"] = 14] = "bytearray";
+    // unitcommand_INVALID = 15,
     BlockConfigType[BlockConfigType["booleanarray"] = 16] = "booleanarray";
     /**
      * @deprecated Warning: this means an actual in-game unit (by its id, which is only valid for one game), not a unit type.
      * If you want a unit type, see {@link BlockConfigType.content} with content type {@link ContentType.unit}
      */
     BlockConfigType[BlockConfigType["unit"] = 17] = "unit";
+    // vec2array = 18,
+    // vec2 = 19,
+    // team = 20,
+    BlockConfigType[BlockConfigType["intarray"] = 21] = "intarray";
+    // objectarray = 22,
+    BlockConfigType[BlockConfigType["unitcommand"] = 23] = "unitcommand";
 })(BlockConfigType || (BlockConfigType = {}));
 ;
 /**Wrapper for configs that preserves type. For better inference, use `BlockConfig.DU` */

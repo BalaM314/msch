@@ -549,4 +549,13 @@ export var Block;
     Block[Block["world_message"] = 413] = "world_message";
     Block[Block["world_switch"] = 414] = "world_switch";
 })(Block || (Block = {}));
+export var UnitCommand;
+(function (UnitCommand) {
+    UnitCommand[UnitCommand["move"] = 0] = "move";
+    UnitCommand[UnitCommand["repair"] = 1] = "repair";
+    UnitCommand[UnitCommand["rebuild"] = 2] = "rebuild";
+    UnitCommand[UnitCommand["assist"] = 3] = "assist";
+    UnitCommand[UnitCommand["mine"] = 4] = "mine";
+    UnitCommand[UnitCommand["boost"] = 5] = "boost";
+})(UnitCommand || (UnitCommand = {}));
 [Block, ContentType, Item, Liquid, Unit].forEach(o => Object.setPrototypeOf(o, null));

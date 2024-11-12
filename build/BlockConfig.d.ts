@@ -1,5 +1,5 @@
 import { Point2 } from "./Point2.js";
-import { ContentType } from "./types.js";
+import { ContentType, UnitCommand } from "./types.js";
 export declare enum BlockConfigType {
     null = 0,
     int = 1,
@@ -7,7 +7,7 @@ export declare enum BlockConfigType {
     float = 3,
     string = 4,
     content = 5,
-    intarray = 6,
+    intseq = 6,
     point = 7,
     pointarray = 8,
     boolean = 10,
@@ -21,7 +21,9 @@ export declare enum BlockConfigType {
      * @deprecated Warning: this means an actual in-game unit (by its id, which is only valid for one game), not a unit type.
      * If you want a unit type, see {@link BlockConfigType.content} with content type {@link ContentType.unit}
      */
-    unit = 17
+    unit = 17,
+    intarray = 21,
+    unitcommand = 23
 }
 export type BlockConfigMapping = {
     [BlockConfigType.null]: null;
@@ -30,7 +32,7 @@ export type BlockConfigMapping = {
     [BlockConfigType.float]: number;
     [BlockConfigType.string]: string | null;
     [BlockConfigType.content]: readonly [type: ContentType, id: number];
-    [BlockConfigType.intarray]: number[];
+    [BlockConfigType.intseq]: number[];
     [BlockConfigType.point]: Point2;
     [BlockConfigType.pointarray]: Point2[];
     [BlockConfigType.boolean]: boolean;
@@ -39,6 +41,8 @@ export type BlockConfigMapping = {
     [BlockConfigType.bytearray]: number[];
     [BlockConfigType.booleanarray]: boolean[];
     [BlockConfigType.unit]: number;
+    [BlockConfigType.intarray]: number[];
+    [BlockConfigType.unitcommand]: UnitCommand;
 };
 export type BlockConfigValue = BlockConfigMapping[BlockConfigType];
 /**Wrapper for configs that preserves type. For better inference, use `BlockConfig.DU` */

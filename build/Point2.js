@@ -39,4 +39,7 @@ export class Point2 {
     pack() {
         return Point2.pack(this.x, this.y);
     }
+    toString() {
+        return `Point2(${this.x}, ${this.y})`;
+    }
 }

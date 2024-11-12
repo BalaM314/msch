@@ -10,12 +10,12 @@ import { fail } from "./utils.js";
 /**Extension of SmartBuffer with extra methods. */
 export class SmartBuffer extends _SmartBuffer {
     readNullByte() {
-        let byte = this.readUInt8();
+        const byte = this.readUInt8();
         if (byte != 0)
             fail(`Expected null byte, got ${byte.toString(16)}`);
     }
     readUTF8() {
-        let size = this.readUInt16BE();
+        const size = this.readUInt16BE();
         return this.readString(size);
     }
     writeUTF8(str) {

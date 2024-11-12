@@ -1,5 +1,6 @@
 import { SmartBuffer } from "./SmartBuffer.js";
 import { Tile } from "./Tile.js";
+export type TileGrid = (Tile | null)[][];
 export declare class Schematic {
     height: number;
     width: number;
@@ -12,7 +13,7 @@ export declare class Schematic {
     /**Blank schematic. */
     static blank: Schematic;
     /**Tiles arranged in a grid. */
-    tiles: (Tile | null)[][];
+    tiles: TileGrid;
     constructor(height: number, width: number, 
     /** Currently, the only version is 1 */
     version: number, tags: Record<string, string>, labels: string[], tiles: Tile[]);
@@ -35,7 +36,7 @@ export declare class Schematic {
     /**
      * Generates the block map needed to save tiles.
      */
-    static getBlockMap(unsortedTiles: Tile[]): [allNames: Array<string>, mapping: (readonly [Tile, number])[]];
+    static getBlockMap(unsortedTiles: Tile[]): [allNames: string[], mapping: Array<readonly [Tile, number]>];
     /**
      * Sorts a list of tiles into a grid.
      * @param { Tile[] } tiles List of tiles to sort
@@ -43,13 +44,13 @@ export declare class Schematic {
      * @param { number } height Height that the resulting 2D array should have
      * @returns { (Tile|null)[][] } Tiles sorted into a grid.
      */
-    static sortTiles(tiles: Tile[], width: number, height: number): (Tile | null)[][];
+    static sortTiles(tiles: Tile[], width: number, height: number): TileGrid;
     /**
      *
      * @param { (Tile|null)[][] } tiles A grid of tiles to unsort.
      * @returns { Tile[] } List of unsorted tiles.
      */
-    static unsortTiles(tiles: (Tile | null)[][]): Tile[];
+    static unsortTiles(tiles: TileGrid): Tile[];
     /**
      * Display a schematic to console.
      * @param verbose Whether to also print block configs. Warning, may spam console.

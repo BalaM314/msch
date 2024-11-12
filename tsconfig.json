@@ -1,13 +1,16 @@
 {
   "compilerOptions": {
+    //general
     "target": "ES2021",
     "module": "es2022",
     "esModuleInterop": true,
+    "noEmitOnError": true,
     "forceConsistentCasingInFileNames": true,
-		"noEmitOnError": true,
-    "strict": true,
     "moduleResolution": "node",
-    "strictNullChecks": true,
+    //strictness
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noPropertyAccessFromIndexSignature": true,
 		"types": []
   }
 }

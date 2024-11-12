@@ -17,4 +17,5 @@ export declare class Point2 {
     static from(point: number): Point2;
     /**Returns a single integer representation of this point. */
     pack(): number;
+    toString(): string;
 }

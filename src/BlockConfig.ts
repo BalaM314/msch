@@ -27,6 +27,7 @@ export enum BlockConfigType {
 	//msch doesn't have Buildings so we can just read both as a Point2.
 	building = 12,
 	/** @deprecated use `BlockConfigType.building` instead, this is wrong */
+	// eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
 	buildingbox = 12,
 	//laccess = 13,
 	bytearray = 14,
@@ -73,6 +74,7 @@ export class BlockConfig<Type extends BlockConfigType = BlockConfigType> {
 	constructor(public type: Type, public value: BlockConfigMapping[Type]) {}
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace BlockConfig {
 	/** BlockConfig as a discriminated union for better type inference. */
 	export type DU = BlockConfigType extends infer T extends BlockConfigType ? T extends unknown ? BlockConfig<T> : never : never;

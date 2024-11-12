@@ -6,11 +6,11 @@ msch is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY
 You should have received a copy of the GNU Lesser General Public License along with msch. If not, see <https://www.gnu.org/licenses/>.
 */
 
-export { SmartBuffer } from "./SmartBuffer.js";
-export { BlockConfig, BlockConfigType, BlockConfigValue } from "./BlockConfig.js";
-export { Schematic } from "./Schematic.js";
-export { Tile } from "./Tile.js";
-export { Point2 } from "./Point2.js";
-export { TypeIO } from "./TypeIO.js";
-export { ContentType, Item, Liquid, Unit, Block, Rotation, Link } from "./types.js";
+export * from "./SmartBuffer.js";
+export * from "./BlockConfig.js";
+export * from "./Schematic.js";
+export * from "./Tile.js";
+export * from "./Point2.js";
+export * from "./TypeIO.js";
+export * from "./types.js";
 export { MessageError } from "./utils.js";

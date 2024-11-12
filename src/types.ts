@@ -6,14 +6,6 @@ msch is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY
 You should have received a copy of the GNU Lesser General Public License along with msch. If not, see <https://www.gnu.org/licenses/>.
 */
 
-export type Truthy<T> = T extends (false | undefined | null) ? never : T;
-
-declare global {
-	interface Array<T> {
-		filter(predicate:BooleanConstructor):Array<Truthy<T>>;
-	}
-}
-
 export enum ContentType {
 	item = 0,
 	block = 1,
@@ -153,7 +145,7 @@ export enum UnitCommand {
 /**0 is right, 1 is up, 2 is left, 3 is down. */
 export type Rotation = 0 | 1 | 2 | 3;
 
-export interface Link {
+export type Link = {
 	name: string;
 	x: number;
 	y: number;

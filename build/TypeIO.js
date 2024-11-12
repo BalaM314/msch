@@ -13,7 +13,7 @@ import { fail } from "./utils.js";
  **/
 export class TypeIO {
     static readObject(buf) {
-        let type = buf.readUInt8();
+        const type = buf.readUInt8();
         switch (type) {
             case BlockConfigType.null:
                 return new BlockConfig(type, null);
@@ -23,32 +23,35 @@ export class TypeIO {
                 return new BlockConfig(type, buf.readBigInt64BE());
             case BlockConfigType.float:
                 return new BlockConfig(type, buf.readFloatBE());
-            case BlockConfigType.string:
-                let exists = buf.readInt8();
+            case BlockConfigType.string: {
+                const exists = buf.readInt8();
                 if (exists != 0) {
                     return new BlockConfig(type, buf.readUTF8());
                 }
                 else {
                     return new BlockConfig(type, null);
                 }
+            }
             case BlockConfigType.content:
                 return new BlockConfig(type, [buf.readInt8(), buf.readInt16BE()]);
-            case BlockConfigType.intarray:
-                let numbers = [];
-                let numInts = buf.readInt16BE();
+            case BlockConfigType.intarray: {
+                const numbers = [];
+                const numInts = buf.readInt16BE();
                 for (let i = 0; i < numInts; i++) {
                     numbers.push(buf.readInt32BE());
                 }
                 return new BlockConfig(type, numbers);
+            }
             case BlockConfigType.point:
                 return new BlockConfig(type, new Point2(buf.readInt32BE(), buf.readInt32BE()));
-            case BlockConfigType.pointarray:
-                let points = [];
-                let numPoints = buf.readInt8();
+            case BlockConfigType.pointarray: {
+                const points = [];
+                const numPoints = buf.readInt8();
                 for (let i = 0; i < numPoints; i++) {
                     points.push(Point2.from(buf.readInt32BE()));
                 }
                 return new BlockConfig(type, points);
+            }
             case BlockConfigType.boolean:
                 return new BlockConfig(type, !!buf.readUInt8());
             case BlockConfigType.double:
@@ -56,13 +59,16 @@ export class TypeIO {
             case BlockConfigType.building:
                 //Should technically be a BuildingBox, but thats equivalent to a Point2 for this program.
                 return new BlockConfig(type, Point2.from(buf.readInt32BE()));
-            case BlockConfigType.bytearray:
-                let numBytes = buf.readInt32BE();
-                let bytes = [];
+            case BlockConfigType.bytearray: {
+                const numBytes = buf.readInt32BE();
+                const bytes = [];
                 for (let i = 0; i < numBytes; i++) {
                     bytes.push(buf.readUInt8());
                 }
                 return new BlockConfig(type, bytes);
+            }
+            case BlockConfigType.unitcommand:
+                return new BlockConfig(BlockConfigType.unitcommand, buf.readUInt16BE());
             default:
                 fail(`Unknown or not implemented object type (${type}) for a tile.`);
         }
@@ -97,7 +103,7 @@ export class TypeIO {
                 break;
             case BlockConfigType.intarray:
                 buf.writeInt16BE(object.value.length);
-                for (let number of object.value) {
+                for (const number of object.value) {
                     buf.writeInt32BE(number);
                 }
                 break;
@@ -107,7 +113,7 @@ export class TypeIO {
                 break;
             case BlockConfigType.pointarray:
                 buf.writeInt8(object.value.length);
-                for (let point of object.value) {
+                for (const point of object.value) {
                     buf.writeInt32BE(point.pack());
                 }
                 break;
@@ -116,9 +122,14 @@ export class TypeIO {
                 break;
             case BlockConfigType.bytearray:
                 buf.writeInt32BE(object.value.length);
-                for (let byte of object.value) {
+                for (const byte of object.value) {
                     buf.writeUInt8(byte);
                 }
+                break;
+            case BlockConfigType.unitcommand:
+                //Mindustry uses an unsigned short when reading and a signed short when writing
+                //that's probably a mistake
+                buf.writeUInt16BE(object.value);
                 break;
             default:
                 fail(`Unknown or not implemented object type (${BlockConfigType[object.type] ?? object.type}) for a tile.`);

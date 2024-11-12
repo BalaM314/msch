@@ -1,9 +1,3 @@
-export type Truthy<T> = T extends (false | undefined | null) ? never : T;
-declare global {
-    interface Array<T> {
-        filter(predicate: BooleanConstructor): Array<Truthy<T>>;
-    }
-}
 export declare enum ContentType {
     item = 0,
     block = 1,
@@ -543,10 +537,18 @@ export declare enum Block {
     world_message = 413,
     world_switch = 414
 }
+export declare enum UnitCommand {
+    move = 0,
+    repair = 1,
+    rebuild = 2,
+    assist = 3,
+    mine = 4,
+    boost = 5
+}
 /**0 is right, 1 is up, 2 is left, 3 is down. */
 export type Rotation = 0 | 1 | 2 | 3;
-export interface Link {
+export type Link = {
     name: string;
     x: number;
     y: number;
-}
+};

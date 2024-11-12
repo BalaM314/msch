@@ -27,7 +27,7 @@ export class Tile {
 	/**All block ids that have logic code. */
 	static logicBlocks: string[] = ["micro-processor", "logic-processor", "hyper-processor", "world-processor"];
 	/**Current logic version. */
-	static logicVersion: number = 1;
+	static logicVersion = 1;
 	constructor(name: string, x: number, y: number, code: string[]);
 	constructor(name: string, x: number, y: number, config?: BlockConfig, rotation?: Rotation);
 	constructor(public name:string, public x:number, public y:number, config?: BlockConfig|string[], rotation?:Rotation) {
@@ -47,6 +47,7 @@ export class Tile {
 			}
 		} else {
 			if(Array.isArray(config))
+				// eslint-disable-next-line prefer-rest-params
 				crash(`Invalid arguments to Tile constructor ([${Array.from(arguments).join(", ")}])`);
 			this.config = config ?? BlockConfig.null;
 		}
@@ -60,17 +61,17 @@ export class Tile {
 	}
 	/**Decompresses a processor config into links and code. */
 	static decompressLogicConfig(config:BlockConfig<BlockConfigType.bytearray>){
-		if(config.type != BlockConfigType.bytearray) crash(`Cannot decompress logic config, config type is ${config.type}`);
-		let data = new SmartBuffer({
+		if(config.type != BlockConfigType.bytearray) crash(`Cannot decompress logic config, config type is ${String(config.type)}`);
+		const data = new SmartBuffer({
 			buff: zlib.inflateSync(Uint8Array.from(config.value))
 		});
-		let version = data.readInt8();
+		const version = data.readInt8();
 		if(version != 1) fail(`Unsupported logic code of version ${version}`);
-		let length = data.readInt32BE();
-		let code = data.readBuffer(length).toString().split(/\r?\n/g);
+		const length = data.readInt32BE();
+		const code = data.readBuffer(length).toString().split(/\r?\n/g);
 		
-		let numLinks = data.readInt32BE();
-		let links = [];
+		const numLinks = data.readInt32BE();
+		const links = [];
 		for(let i = 0; i < numLinks; i ++){
 			links.push({
 				name: data.readUTF8(),
@@ -95,21 +96,21 @@ export class Tile {
 		links: Link[];
 		code: string[];
 	}){
-		let output = new SmartBuffer();
+		const output = new SmartBuffer();
 		output.writeInt8(Tile.logicVersion);
 
-		let outputCode = Buffer.from(code.join("\n"));
+		const outputCode = Buffer.from(code.join("\n"));
 		output.writeInt32BE(outputCode.length);
 		output.writeBuffer(outputCode);
 
 		output.writeInt32BE(links.length);
-		for(let link of links){
+		for(const link of links){
 			output.writeUTF8(link.name);
 			output.writeInt16BE(link.x);
 			output.writeInt16BE(link.y);
 		}
 
-		let compressedData = zlib.deflateSync(output.toBuffer());
+		const compressedData = zlib.deflateSync(output.toBuffer());
 		return Array.from(compressedData);
 	}
 	writeConfig(){
@@ -128,9 +129,9 @@ export class Tile {
 			return {
 				code: this.code,
 				links: this.links
-			}
+			};
 		} else {
-			return `BlockConfig {[type ${BlockConfigType[this.config.type] ?? this.config.type}] ${typeof this.config.value == "string" ? `"${this.config.value}"` : this.config.value}}`;
+			return `BlockConfig {[type ${BlockConfigType[this.config.type] ?? this.config.type}] ${typeof this.config.value == "string" ? `"${this.config.value}"` : String(this.config.value)}}`;
 		}
 	}
 	
