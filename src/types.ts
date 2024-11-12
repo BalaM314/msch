@@ -140,7 +140,7 @@ export enum UnitCommand {
 	boost = 5,
 }
 
-[Block, ContentType, Item, Liquid, Unit].forEach(o => Object.setPrototypeOf(o, null));
+[Block, ContentType, Item, Liquid, Unit, UnitCommand].forEach(o => Object.setPrototypeOf(o, null));
 
 /**0 is right, 1 is up, 2 is left, 3 is down. */
 export type Rotation = 0 | 1 | 2 | 3;

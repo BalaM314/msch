@@ -558,4 +558,4 @@ export var UnitCommand;
     UnitCommand[UnitCommand["mine"] = 4] = "mine";
     UnitCommand[UnitCommand["boost"] = 5] = "boost";
 })(UnitCommand || (UnitCommand = {}));
-[Block, ContentType, Item, Liquid, Unit].forEach(o => Object.setPrototypeOf(o, null));
+[Block, ContentType, Item, Liquid, Unit, UnitCommand].forEach(o => Object.setPrototypeOf(o, null));
