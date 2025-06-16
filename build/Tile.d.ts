@@ -18,7 +18,7 @@ export declare class Tile {
     /**All block ids that have logic code. */
     static logicBlocks: string[];
     /**Current logic version. */
-    static logicVersion: number;
+    static readonly logicVersion = 1;
     constructor(name: string, x: number, y: number, code: string[]);
     constructor(name: string, x: number, y: number, config?: BlockConfig, rotation?: Rotation);
     toString(): string;

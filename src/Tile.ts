@@ -27,7 +27,7 @@ export class Tile {
 	/**All block ids that have logic code. */
 	static logicBlocks: string[] = ["micro-processor", "logic-processor", "hyper-processor", "world-processor"];
 	/**Current logic version. */
-	static logicVersion = 1;
+	static readonly logicVersion = 1;
 	constructor(name: string, x: number, y: number, code: string[]);
 	constructor(name: string, x: number, y: number, config?: BlockConfig, rotation?: Rotation);
 	constructor(public name:string, public x:number, public y:number, config?: BlockConfig|string[], rotation?:Rotation) {

@@ -61,7 +61,7 @@ export class Schematic {
 		if (width > maxSize || height > maxSize) return "Schematic is too large, maximum size is 128x128."; //TODO conf
 		
 		const tagcount = data.readUInt8();
-		const tags: Schematic["tags"] = {};
+		const tags: Schematic["tags"] = Object.create(null);
 		for (let i = 0; i < tagcount; i++) {
 			tags[data.readUTF8()] = data.readUTF8();
 		}
