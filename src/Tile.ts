@@ -70,7 +70,7 @@ export class Tile {
 		const length = data.readInt32BE();
 		const code = data.readBuffer(length).toString().split(/\r?\n/g);
 		
-		const numLinks = data.readInt32BE();
+		const numLinks = Math.min(data.readInt32BE(), 6000);
 		const links = [];
 		for(let i = 0; i < numLinks; i ++){
 			links.push({
